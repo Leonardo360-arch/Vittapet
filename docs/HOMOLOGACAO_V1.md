@@ -1,6 +1,6 @@
 # Homologação formal — VittaPet Store v1
 
-**Versão candidata atual:** `1.0.0-dev.1`; incremento por correção em `VERSION` e `CHANGELOG.md` antes de cada merge. Ver `docs/VERSIONAMENTO.md`.
+**Versão candidata atual:** `1.0.0-dev.2`; incremento por correção em `VERSION` e `CHANGELOG.md` antes de cada merge. Ver `docs/VERSIONAMENTO.md`.
 
 **Ambiente atual:** código em GitHub, CI PHP/MySQL proposto; **InfinityFree não instalado**. Documento vivo: registrar resultados, não preencher com aprovações hipotéticas.
 
@@ -30,7 +30,7 @@
 - **Dados de teste:** banco temporário isolado; não misturar clientes reais.
 
 ## Bloqueadores conhecidos
-- Frete anteriormente demonstrativo 0,00: taxa fixa configurável com migration 007; **cobertura geográfica e regras de exceção ainda não implementadas**, impedindo uso comercial sem validação.
+- Frete anteriormente demonstrativo 0,00: taxa fixa configurável com migration 007; **filtro básico de prefixos de CEP implementado na migration 008, mas validação real de endereço e exceções de cobertura continuam pendentes**, impedindo uso comercial sem validação.
 - Estorno de pedido pago não implementado.
 - Relatórios financeiros usam data de criação, não de confirmação financeira.
 - Testes de concorrência e replay não cobertos pela suíte inicial.

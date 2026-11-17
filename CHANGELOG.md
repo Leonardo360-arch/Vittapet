@@ -2,6 +2,11 @@
 
 Este histórico identifica versões **planejadas/documentadas** e versões **lançadas**. Não significa que o sistema já está implementado.
 
+## [1.0.0-dev.2] — Em desenvolvimento (17/11/2026)
+- Migration 008, cadastro de prefixos de CEP atendidos e verificação transacional de cobertura no checkout.
+- Extração da validação para `includes/delivery_coverage.php` e testes de CEP permitido, negado e ausência de configuração.
+- Frete continua taxa fixa; CEP e endereço ainda exigem homologação real.
+
 ## [1.0.0-dev.1] — Em homologação (17/11/2026)
 - Identificador formal de desenvolvimento adicionado em `VERSION`. Novas correções integradas terão `dev.N` incrementado, com changelog, QA e documentação sincronizados. Não representa publicação estável.
 - Frete fixo configurável em migration 007, administração e checkout transacional; ausência de taxa bloqueia pedidos e zero exige escolha explícita. Testes adicionais e documentação em `docs/FRETE_V1.md`. Área de entrega e estorno permanecem riscos.

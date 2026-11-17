@@ -13,6 +13,7 @@ if (PHP_SAPI !== 'cli' || !extension_loaded('curl')) {
     exit(1);
 }
 require dirname(__DIR__) . '/config/database.php';
+require dirname(__DIR__) . '/includes/delivery_coverage.php';
 
 $base = rtrim((string)(getenv('TEST_BASE_URL') ?: 'http://127.0.0.1:8000'), '/');
 $checks = 0;
@@ -101,7 +102,11 @@ try {
     foreach (['pedidos', 'pedido_itens', 'pedido_historico', 'despesas', 'configuracoes_loja', 'login_tentativas', 'consultas_rastreio'] as $table) {
         check((bool)$pdo->query("SHOW TABLES LIKE " . $pdo->quote($table))->fetchColumn(), "Migration: tabela $table presente");
     }
-    $pdo->exec("UPDATE configuracoes_loja SET whatsapp='5511999999999', frete_fixo=NULL WHERE id=1");
+    $pdo->exec("UPDATE configuracoes_loja SET whatsapp='5511999999999', frete_fixo=NULL, cep_prefixos_entrega=NULL WHERE id=1");
+    check(normalizeDeliveryPrefixes("01002,01001,01002")==='01001,01002', 'Prefixos válidos são ordenados e deduplicados');
+    check(deliveryZipSupported('01001000','01001,01002'), 'CEP permitido corresponde ao prefixo');
+    check(!deliveryZipSupported('13010000','01001,01002'), 'CEP fora da cobertura é recusado');
+    check(!deliveryZipSupported('01001000',null), 'Sem prefixos, nenhum CEP é autorizado');
     $cat = (int)$pdo->query('SELECT id FROM categorias ORDER BY id LIMIT 1')->fetchColumn();
     $seed = $pdo->prepare('INSERT INTO produtos(categoria_id,nome,descricao,preco_venda,custo_unitario,estoque_atual,estoque_minimo) VALUES(?,?,?,?,?,?,?)');
     $seed->execute([$cat, 'Ração de teste QA', 'Produto isolado do CI', '49.90', '25.00', 10, 2]);
@@ -140,10 +145,13 @@ try {
 
     $unconfigured = http('/checkout.php', [], 'visitor');
     check($unconfigured['status']===200 && str_contains($unconfigured['body'],'Pedidos temporariamente indisponíveis'), 'Checkout bloqueado até configurar frete');
-    $pdo->exec("UPDATE configuracoes_loja SET frete_fixo='0.00' WHERE id=1");
+    $pdo->exec("UPDATE configuracoes_loja SET frete_fixo='0.00', cep_prefixos_entrega='01001' WHERE id=1");
     $freeCheckout = http('/checkout.php', [], 'visitor');
     check($freeCheckout['status']===200 && str_contains($freeCheckout['body'],'R$ 0,00'), 'Frete grátis explícito é distinto de configuração ausente');
-    $pdo->exec("UPDATE configuracoes_loja SET frete_fixo='8.50' WHERE id=1");
+    $pdo->exec("UPDATE configuracoes_loja SET frete_fixo='8.50', cep_prefixos_entrega=NULL WHERE id=1");
+    $uncovered = http('/checkout.php', [], 'visitor');
+    check(str_contains($uncovered['body'], 'configure frete e área de entrega'), 'Checkout exige prefixos autorizados antes de liberar pedidos');
+    $pdo->exec("UPDATE configuracoes_loja SET cep_prefixos_entrega='01001' WHERE id=1");
     $cartCsrf = field($home['body'], 'csrf');
     $add = http('/carrinho.php', ['csrf'=>$cartCsrf,'id'=>$productId,'quantity'=>1,'action'=>'add'], 'visitor', false, true);
     check($add['status'] === 302, 'Carrinho: inclusão de produto');
@@ -156,6 +164,18 @@ try {
     $data=json_decode($remove['body'],true,512,JSON_THROW_ON_ERROR);
     check($data['count']===0 && $data['subtotal']===0, 'Carrinho: remove produto e zera subtotal');
     http('/carrinho.php', ['csrf'=>$cartCsrf,'id'=>$productId,'quantity'=>1,'action'=>'add'], 'visitor', false, true);
+
+    $deniedForm = http('/checkout.php', [], 'visitor');
+    $denied = [
+      'csrf'=>field($deniedForm['body'],'csrf'),
+      'nonce'=>field($deniedForm['body'],'nonce'),
+      'nome'=>'Cliente QA', 'email'=>'qa@example.invalid','telefone'=>'11999999999',
+      'cep'=>'13010000','logradouro'=>'Rua Fora da Cobertura','numero'=>'10',
+      'bairro'=>'Centro','cidade'=>'Campinas','uf'=>'SP','metodo'=>'pix_manual'
+    ];
+    $deniedResult=http('/checkout.php',$denied,'visitor',false,true);
+    check($deniedResult['status']===200 && str_contains($deniedResult['body'],'CEP fora da área de entrega'), 'POST para CEP não autorizado é rejeitado pelo servidor');
+    check((int)$pdo->query("SELECT COUNT(*) FROM pedidos")->fetchColumn()===0, 'CEP não autorizado não cria pedido');
 
     $pixToken=placeOrder('pix_manual');
     $pix=orderByToken($pdo,$pixToken);
