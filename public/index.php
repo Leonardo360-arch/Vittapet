@@ -27,7 +27,7 @@ try {
 <?php if ($p['imagem_path']): ?><img src="<?=e($p['imagem_path'])?>" alt="<?=e($p['nome'])?>" loading="lazy" style="max-width:100%;max-height:165px;object-fit:contain"><?php else: ?><span class="text-muted">VittaPet</span><?php endif; ?></div>
 <div class="card-body d-flex flex-column"><small class="text-muted"><?=e($p['categoria'])?></small><h3 class="h6 fw-semibold mt-1"><?=e($p['nome'])?></h3>
 <p class="text-muted small flex-grow-1"><?=e(mb_strimwidth((string)($p['descricao']??''),0,90,'…'))?></p>
-<div class="price mb-2"><?=money($p['preco_venda'])?></div><button class="btn btn-primary btn-sm control-slim" type="button" disabled>Comprar em breve</button></div></article></div><?php endforeach; ?>
+<div class="price mb-2"><?=money($p['preco_venda'])?></div><form method="post" action="carrinho.php"><input type="hidden" name="csrf" value="<?=e(csrf())?>"><input type="hidden" name="id" value="<?=intval($p['id'])?>"><input type="hidden" name="quantity" value="1"><button class="btn btn-primary btn-sm control-slim w-100" type="submit" <?=intval($p['estoque_atual'])===0?'disabled':''?>><?=intval($p['estoque_atual'])===0?'Esgotado':'Adicionar ao carrinho'?></button></form></div></article></div><?php endforeach; ?>
 <?php if(!$produtos): ?><p class="text-muted">Nenhum produto disponível no momento.</p><?php endif;?></div></section>
 </main>
 <footer class="border-top mt-5 py-4"><div class="container d-flex justify-content-between flex-wrap gap-2"><span>© VittaPet Store — Projeto acadêmico</span><span>Localização e mapa: próxima etapa</span></div></footer>
