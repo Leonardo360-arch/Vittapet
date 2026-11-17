@@ -7,9 +7,8 @@ if($token!==''){
  $allowed=false;
  try {
    $ipHash=hash('sha256',(string)($_SERVER['REMOTE_ADDR']??'unknown'));
-   $since=date('Y-m-d H:i:s',time()-10*60);
-   $limit=db()->prepare('SELECT COUNT(*) FROM consultas_rastreio WHERE ip_hash=? AND criado_em>=?');
-   $limit->execute([$ipHash,$since]);
+   $limit=db()->prepare('SELECT COUNT(*) FROM consultas_rastreio WHERE ip_hash=? AND criado_em >= (NOW() - INTERVAL 10 MINUTE)');
+   $limit->execute([$ipHash]);
    if((int)$limit->fetchColumn()>=40){
      http_response_code(429);
      $error='Limite de consultas atingido. Tente novamente mais tarde.';
