@@ -1,6 +1,6 @@
 # Homologação formal — VittaPet Store v1
 
-**Versão candidata atual:** `1.0.0-dev.3`; incremento por correção em `VERSION` e `CHANGELOG.md` antes de cada merge. Ver `docs/VERSIONAMENTO.md`.
+**Versão candidata atual:** `1.0.0-dev.4`; incremento por correção em `VERSION` e `CHANGELOG.md` antes de cada merge. Ver `docs/VERSIONAMENTO.md`.
 
 **Ambiente atual:** código em GitHub, CI PHP/MySQL proposto; **InfinityFree não instalado**. Documento vivo: registrar resultados, não preencher com aprovações hipotéticas.
 
@@ -33,7 +33,7 @@
 - Frete anteriormente demonstrativo 0,00: taxa fixa configurável com migration 007; **filtro básico de prefixos de CEP implementado na migration 008, mas validação real de endereço e exceções de cobertura continuam pendentes**, impedindo uso comercial sem validação.
 - Estorno manual de pedido pago antes do envio implementado na migration 009; devolução física após despacho e conciliação bancária seguem pendentes.
 - Relatórios financeiros da dev.3 usam a data real da confirmação; dados históricos sem `pago_em` não são inventados e ficam fora do período até reconciliação.
-- Testes de concorrência e replay não cobertos pela suíte inicial.
+- Concorrência de dois processos PHP disputando último item coberta na suíte dev.4; cenários multiproduto, deadlock sob carga e ambientes distribuídos seguem pendentes de homologação.
 - Extensões, restrições, SSL e rewrites do InfinityFree precisam de teste final.
 - Formatação/responsabilidades ainda exigem refatoração incremental; SOLID não deve ser declarado integralmente atendido sem evidência.
 
