@@ -8,12 +8,12 @@ Projeto acadêmico de Desenvolvimento Web II: uma **loja virtual de produtos pet
 ## 2. Delimitação do escopo
 **Incluído:** comercialização de produtos, categorias, clientes de pedidos, estoque, carrinho, endereço, pedidos, pagamento manual controlado, separação/embalagem/entrega, indicadores, relatórios e localização da loja.
 **Excluído:** clínica, profissionais veterinários, prontuários, receitas, vacinação, banho/tosa, agendamento de serviços, portal clínico, galeria de cães, mural social, fidelidade, concursos, chatbot e notificações automáticas; esses itens ficam documentados para v2.0.
-**Sem gateway na v1.0:** aceitar pedido não equivale a receber pagamento. Se houver Pix, dinheiro ou cartão na entrega, a confirmação será manual por operador autorizado, e o site não deverá afirmar pagamento automático.
+**Sem gateway na v1.0:** aceitar pedido não equivale a receber pagamento. Se houver Pix antecipado ou débito/crédito na entrega, a confirmação será manual por operador autorizado, e o site não deverá afirmar pagamento automático.
 
 ## 3. Atores
 - **Visitante/cliente:** navega sem login, monta carrinho, informa dados de checkout, recebe token e consulta andamento com dados limitados.
 - **Administrador:** autentica-se e gerencia produtos, categorias, estoque, pedidos, status, despesas, configurações e indicadores.
-A v1.0 pode usar checkout como convidado; contas de tutores serão adicionadas na v2.0 sem quebrar o vínculo histórico dos pedidos.
+A v1.0 utiliza checkout como convidado; contas de tutores serão adicionadas na v2.0 sem quebrar o vínculo histórico dos pedidos.
 
 ## 4. Requisitos funcionais
 | ID | Requisito | Critério de aceite |
@@ -48,7 +48,7 @@ A v1.0 pode usar checkout como convidado; contas de tutores serão adicionadas n
 - Prevenir cliques concorrentes/duplicados e pedidos duplicados; checkout utiliza chave de idempotência quando implementado.
 - Preço de pedido fechado é imutável em `pedido_itens.preco_unitario`.
 ### 5.2 Pedido e pagamento
-- Separar `status_pagamento`: `pendente | confirmado | estornado` de `status_logistico`: `aguardando_pagamento | em_separacao | embalado | saiu_para_entrega | entregue | cancelado`.
+- Separar `status_pagamento`: `pendente | a_receber_na_entrega | confirmado | estornado` de `status_logistico`: `aguardando_pagamento | em_separacao | embalado | saiu_para_entrega | entregue | cancelado`.
 - Sequência normal: aguardando pagamento → em separação → embalado → saiu para entrega → entregue.
 - Pagamento confirmado permite iniciar a separação, salvo modalidade explícita de pagamento na entrega; nessa modalidade, status logístico pode avançar com pagamento pendente, sem contabilizar receita confirmada.
 - Cancelamento exige regra conforme fase, reversão consistente de estoque e eventual pagamento; transições inválidas são rejeitadas.
@@ -57,7 +57,7 @@ A v1.0 pode usar checkout como convidado; contas de tutores serão adicionadas n
 - Gravar pedido, itens e movimentações com transações MySQL/InnoDB e `SELECT ... FOR UPDATE` quando aplicável; evitar venda simultânea do último item.
 - Modelo de estoque escolhido deve deixar explícito quando ocorre reserva/baixa; cancelar reverte apenas operações efetivamente realizadas.
 ### 5.4 Financeiro
-- **Receita confirmada:** pagamentos confirmados menos estornos pertinentes no período selecionado.
+- **Receita confirmada:** soma atual dos pedidos ainda confirmados com `pago_em` no período; estornos integrais deixam de compor esse saldo agregado. Não se trata de fluxo de caixa histórico.
 - **CMV:** soma do custo congelado dos itens vendidos; manter custo unitário histórico.
 - **Resultado estimado:** receita confirmada menos CMV menos despesas e custos de entrega assumidos pela loja, sem rotular como lucro contábil definitivo.
 - **Ticket médio:** receita confirmada / quantidade de pedidos pagos (evitar divisão por zero).
@@ -145,3 +145,6 @@ Pontuação do exercício: CRUD 2,5; originalidade/interface 2,0; documentação
 - [Planejamento da versão futura com datas após a entrega](PLANO_POS_ENTREGA.md)
 
 **Atenção:** o texto acima especifica o produto-alvo; a implementação atual inclui checkout Pix via WhatsApp e débito/crédito na entrega, com validação manual, e permanece sujeita a testes. O escopo da versão 2 não entra na entrega acadêmica.
+
+## 12. Estado de implementação e exceções (17/11/2026)
+Esta especificação descreve também **objetivos ainda não entregues**; não tratá-la como prova de que todas as telas e funcionalidades existem. O código em `main` da `dev.5` passou 78 asserções PHP/MySQL, concorrência isolada e 15 testes Chromium emulados. Há frete fixo configurável, cobertura por prefixos de CEP, estorno manual pré-expedição e relatório financeiro por `pago_em`. Não há gateway Pix nem transferência automática de estorno. A home possui filtro de categoria; busca textual e telas dedicadas de produto/categoria requerem verificação de implementação antes de declaração de aceite. O filtro de CEP não comprova a existência do endereço. Testes das APIs externas reais, aparelhos físicos, acessibilidade e InfinityFree continuam pendentes. Consulte [Checklist de entrega](CHECKLIST_ENTREGA_V1.md) e [Relatório de liberação](RELATORIO_LIBERACAO_V1.md).
