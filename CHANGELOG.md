@@ -2,6 +2,12 @@
 
 Este histórico identifica versões **planejadas/documentadas** e versões **lançadas**. Não significa que o sistema já está implementado.
 
+## [1.0.0-dev.5] — Homologação visual e APIs (17/11/2026)
+- Playwright com Chromium emulado em celular, tablet e desktop, validando vitrine, filtro, navegação, layout, administração, ViaCEP/Nominatim por JSON simulado, localização e link Pix WhatsApp.
+- Verificação visual automatizada adicionada ao CI PHP/MySQL; serviços externos e celular físico permanecem pendentes de testes reais.
+- Documento `docs/QA_REVISAO_08.md`, versão e roteiro de homologação atualizados.
+- InfinityFree permanece última etapa.
+
 ## [1.0.0-dev.4] — Revisão de concorrência e código (17/11/2026)
 - Extraído serviço de estoque/itens do checkout, preservando locks transacionais e prepared statements.
 - CI adiciona teste de dois processos/duas conexões disputando a última unidade, com verificação de 1 venda, 1 rejeição e estoque não negativo.
