@@ -2,6 +2,13 @@
 
 Este histórico identifica versões **planejadas/documentadas** e versões **lançadas**. Não significa que o sistema já está implementado.
 
+## [1.0.0-dev.4] — Revisão de concorrência e código (17/11/2026)
+- Extraído serviço de estoque/itens do checkout, preservando locks transacionais e prepared statements.
+- CI adiciona teste de dois processos/duas conexões disputando a última unidade, com verificação de 1 venda, 1 rejeição e estoque não negativo.
+- Script de deploy cria pacote por lista de permissões, excluindo testes, documentação, migrations e segredos; .gitignore ampliado.
+- Auditoria Git confirma ausência de arquivos evidentemente temporários no histórico atual. Não houve exclusão destrutiva de arquivos úteis.
+- QA e hospedagem permanecem separados; não publicar como estável antes do aceite final.
+
 ## [1.0.0-dev.3] — Em homologação (17/11/2026)
 - Registro de estorno manual de pagamento já reembolsado externamente, com justificativa, cancelamento, estoque e histórico transacionais.
 - Data de recebimento `pago_em`, data de registro `estornado_em` e aviso de pedidos legados, migration 009.
