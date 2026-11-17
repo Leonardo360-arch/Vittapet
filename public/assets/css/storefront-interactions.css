@@ -27,3 +27,5 @@
 .store-product-card{scroll-margin-top:125px}
 @media(max-width:768px){.store-showcase{padding-top:1.5rem}.store-slide{flex-basis:min(78vw,300px)}.store-slider-controls button{width:38px;height:38px}}
 @media(prefers-reduced-motion:reduce){.store-navlinks a,.store-navlinks a:after,.store-cart-link,.store-main-button,.store-add-button,.store-slide,.store-slider-controls button,.store-slider-dots button{transition:none!important;transform:none!important}}
+
+.store-slider-controls button[hidden],.store-slider-dots[hidden]{display:none!important}
