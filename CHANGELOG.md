@@ -2,6 +2,15 @@
 
 Este histórico identifica versões **planejadas/documentadas** e versões **lançadas**. Não significa que o sistema já está implementado.
 
+## [1.0.0-dev.9] — Vitrine pública e catálogo de demonstração (17/11/2026)
+- Redesenhados header, navegação, botões, hero, cards, benefícios e rodapé da vitrine pública, com CSS próprio, foco acessível e responsividade.
+- Link `Admin` removido do cabeçalho público; `Área administrativa` agora aparece discretamente no canto inferior direito do rodapé.
+- Pesquisa de texto e filtro de categoria funcionais no navegador sem chamadas externas.
+- Catálogo local expandido para 20 produtos fictícios marcados DEMO, incluindo item esgotado, por comando explícito, sem modificar produtos reais e sem recriar itens desativados.
+- Dados fictícios nunca são inseridos automaticamente em produção. Endereço fictício aguardando informação do usuário.
+- Novos cenários Playwright verificam busca, rodapé, navegação, layout responsivo e botões.
+- Conservados checkout, carrinho, cobrança manual e as regras existentes de pagamento/estoque.
+
 ## [1.0.0-dev.8] — Dashboard administrativo e identidade visual (17/11/2026)
 - Criado `includes/admin_header.php` como componente de navegação autenticada reutilizável, inicialmente aplicado ao dashboard.
 - Criado `public/assets/css/admin.css` com layout responsivo, foco visível, tokens de identidade visual e estados vazios.

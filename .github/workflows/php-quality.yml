@@ -58,6 +58,13 @@ jobs:
         run: docker compose -f compose.local.yaml exec -T app php scripts/check_local.php
       - name: Importação e seed DEMO opcionais
         run: docker compose -f compose.local.yaml exec -T app php scripts/seed_local.php
+      - name: Conferir catálogo DEMO idempotente e completo
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker compose -f compose.local.yaml exec -T app php scripts/seed_local.php
+          count=$(docker compose -f compose.local.yaml exec -T db sh -c 'MYSQL_PWD="$MYSQL_PASSWORD" mysql -h127.0.0.1 -u"$MYSQL_USER" "$MYSQL_DATABASE" -Nse "SELECT COUNT(*) FROM produtos WHERE nome LIKE '\''DEMO - %'\''"' | tr -d '\r')
+          test "$count" = "20"
       - name: Provisionar conta QA no PHP do Docker
         env:
           ADMIN_EMAIL: docker-qa@example.invalid
@@ -73,7 +80,7 @@ jobs:
             sleep 2
           done
           curl -fsS http://127.0.0.1:8080/login.php >/dev/null
-          curl -fsS http://127.0.0.1:8080/index.php | grep -F 'DEMO -'
+          curl -fsS http://127.0.0.1:8080/index.php | grep -F 'DEMO · TESTE'
           curl -fsS http://127.0.0.1:8081/ >/dev/null
       - name: Inspecionar logs ao falhar
         if: failure()

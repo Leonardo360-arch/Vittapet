@@ -1,6 +1,6 @@
 # VittaPet Store — Teste em localhost (Windows + Docker Desktop)
 
-**Versão:** 1.0.0-dev.7 — ambiente de desenvolvimento. **Não é hospedagem pública nem versão comercial homologada.**
+**Versão:** 1.0.0-dev.9 — ambiente de desenvolvimento. **Não é hospedagem pública nem versão comercial homologada.**
 
 ## 1. Pré-requisitos
 - Windows 10/11, Docker Desktop **iniciado** (engine Linux/WSL2) e Git.
@@ -53,7 +53,7 @@ Ao iniciar, as categorias já existirão, **mas você precisará cadastrar produ
 3. Configure **frete fixo** (exemplo: `8.50`; `0.00` é frete grátis proposital).
 4. Configure **prefixos de CEP atendidos** com 5 dígitos separados por vírgula. Exemplo somente para teste: `01001`, que inclui `01001-000`. A configuração **não valida se o endereço existe**.
 5. Cadastre endereço da loja; clique em localizar com Nominatim e salve coordenadas para exibir mapa.
-6. Para visualizar um catálogo inicial, pode executar **opcionalmente** `docker compose -f compose.local.yaml exec -T app php scripts/seed_local.php`. Ele cria quatro produtos fictícios marcados DEMO somente se nenhum produto existir; não altera cadastros existentes.
+6. Para visualizar um catálogo inicial, pode executar **opcionalmente** `docker compose -f compose.local.yaml exec -T app php scripts/seed_local.php`. Ele cria vinte produtos fictícios marcados DEMO somente se nenhum produto existir; não altera cadastros existentes.
 7. Teste compra sem usar dados pessoais reais, rastreio, Pix via WhatsApp, pagamento na entrega e atualização de status.
 
 Se frete ou cobertura estiverem vazios, o servidor impede novos pedidos — isso é esperado.

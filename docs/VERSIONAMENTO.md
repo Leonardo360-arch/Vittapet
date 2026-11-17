@@ -1,7 +1,7 @@
 # Política de versionamento da VittaPet Store
 
 ## Identificação atual
-A primeira versão identificada em arquivo é **1.0.0-dev.8**, referência à base de desenvolvimento e revisão documental da Store. Não é release pública nem significa homologação da loja.
+A primeira versão identificada em arquivo é **1.0.0-dev.9**, referência à base de desenvolvimento e revisão documental da Store. Não é release pública nem significa homologação da loja.
 
 ## Regras de versão
 - Durante a homologação da primeira entrega: `1.0.0-dev.1`, `1.0.0-dev.2`, `1.0.0-dev.3` etc.; incrementar o sufixo a cada conjunto de correções efetivamente integrado à `main`.
@@ -29,6 +29,7 @@ A primeira versão identificada em arquivo é **1.0.0-dev.8**, referência à ba
 | 1.0.0-dev.5 | Testes browser/viewport e integração JSON simulada + checklist real | Integrada na main, CI aprovado |
 | 1.0.0-dev.6 | Revisão documental, checklist de release e gate de links, migrations e versão | Integrada na main, CI aprovado |
 | 1.0.0-dev.7 | Ambiente localhost Docker (PHP 8.2, MySQL 8, phpMyAdmin), PowerShell, diagnóstico e seed opcional | Integrada na main; CI aprovado |
-| 1.0.0-dev.8 | Navegação compartilhada no dashboard, novos componentes visuais, filtros rápidos e gráfico sem biblioteca externa | Em revisão/CI, não é release |
+| 1.0.0-dev.8 | Navegação compartilhada no dashboard, novos componentes visuais, filtros rápidos e gráfico sem biblioteca externa | Integrada na main; CI aprovado |
+| 1.0.0-dev.9 | Redesign público, rodapé administrativo, filtros de catálogo e 20 itens DEMO opcionais | Em QA, não é release |
 
 Histórico detalhado: [CHANGELOG.md](../CHANGELOG.md).
