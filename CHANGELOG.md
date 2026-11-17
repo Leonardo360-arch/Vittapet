@@ -2,6 +2,12 @@
 
 Este histórico identifica versões **planejadas/documentadas** e versões **lançadas**. Não significa que o sistema já está implementado.
 
+## [1.0.0-dev.6] — Preparação documental de liberação (17/11/2026)
+- README, arquitetura, instalação, matriz de QA, hospedagem e homologação sincronizados com as migrations 001–009 e a evidência real do CI.
+- Manual operacional, checklist de entrega e relatório de liberação criados; APIs externas, celulares físicos e InfinityFree permanecem pendentes.
+- Gate de consistência documental em CLI verifica arquivos, links locais, versão e migrations.
+- **Sem promoção para rc.1 ou selo final** enquanto existirem cenários críticos sem validação.
+
 ## [1.0.0-dev.5] — Homologação visual e APIs (17/11/2026)
 - Playwright com Chromium emulado em celular, tablet e desktop, validando vitrine, filtro, navegação, layout, administração, ViaCEP/Nominatim por JSON simulado, localização e link Pix WhatsApp.
 - Verificação visual automatizada adicionada ao CI PHP/MySQL; serviços externos e celular físico permanecem pendentes de testes reais.
