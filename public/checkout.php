@@ -3,7 +3,14 @@ declare(strict_types=1);
 require dirname(__DIR__) . '/includes/bootstrap.php';
 
 $error = null;
-$successToken = null;
+$freteConfigurado = false;
+$freteExibido = null;
+try {
+    $freteExibido = db()->query('SELECT frete_fixo FROM configuracoes_loja WHERE id=1')->fetchColumn();
+    $freteConfigurado = $freteExibido !== false && $freteExibido !== null;
+} catch (Throwable $exception) {
+    error_log('Falha ao obter frete: ' . $exception->getMessage());
+}
 $cart = $_SESSION['cart'] ?? [];
 $checkoutNonce = $_SESSION['checkout_nonce'] ??= bin2hex(random_bytes(16));
 $values = ['nome'=>'','email'=>'','telefone'=>'','cep'=>'','logradouro'=>'','numero'=>'','complemento'=>'','bairro'=>'','cidade'=>'','uf'=>'','metodo'=>'pix_manual'];
@@ -31,6 +38,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $pdo = db();
         $pdo->beginTransaction();
+        $shipping = $pdo->query('SELECT frete_fixo FROM configuracoes_loja WHERE id=1 FOR UPDATE')->fetchColumn();
+        if ($shipping === false || $shipping === null) {
+            throw new InvalidArgumentException('Entrega ainda não configurada. Entre em contato com a loja.');
+        }
+        $shippingCents = (int)round((float)$shipping * 100);
         $ids = array_map('intval',array_keys($cart));
         sort($ids, SORT_NUMERIC);
         $marks = implode(',',array_fill(0,count($ids),'?'));
@@ -49,8 +61,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         unset($item);
         if($subtotalCents<1) throw new InvalidArgumentException('O total do pedido deve ser maior que zero.');
-        // Frete será calculado por política de entrega; ainda não cobrar sem regra configurada.
-        $freteCents=0;
+        // Política v1: taxa fixa cadastrada e validada no servidor.
+        $freteCents=$shippingCents;
         $isPix=$values['metodo']==='pix_manual';
         $paymentStatus=$isPix?'pendente':'a_receber_na_entrega';
         $logisticStatus=$isPix?'aguardando_pagamento':'em_separacao';
@@ -59,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $clienteId=(int)$pdo->lastInsertId();
         $token='VP-'.date('y').'-'.strtoupper(bin2hex(random_bytes(8)));
         $order=$pdo->prepare("INSERT INTO pedidos(cliente_id,token_rastreio,endereco_cep,endereco_logradouro,endereco_numero,endereco_complemento,endereco_bairro,endereco_cidade,endereco_uf,subtotal,frete,desconto,total,metodo_pagamento,status_pagamento,status_logistico) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
-        $order->execute([$clienteId,$token,preg_replace('/\D/','',$values['cep']),$values['logradouro'],$values['numero'],$values['complemento']?:null,$values['bairro'],$values['cidade'],strtoupper($values['uf']),number_format($subtotalCents/100,2,'.','.'),'0.00','0.00',number_format(($subtotalCents+$freteCents)/100,2,'.','.'),$values['metodo'],$paymentStatus,$logisticStatus]);
+        $order->execute([$clienteId,$token,preg_replace('/\D/','',$values['cep']),$values['logradouro'],$values['numero'],$values['complemento']?:null,$values['bairro'],$values['cidade'],strtoupper($values['uf']),number_format($subtotalCents/100,2,'.','.'),number_format($freteCents/100,2,'.','.'),'0.00',number_format(($subtotalCents+$freteCents)/100,2,'.','.'),$values['metodo'],$paymentStatus,$logisticStatus]);
         $orderId=(int)$pdo->lastInsertId();
         $insert=$pdo->prepare('INSERT INTO pedido_itens(pedido_id,produto_id,quantidade,preco_unitario,custo_unitario) VALUES(?,?,?,?,?)');
         $decrement=$pdo->prepare('UPDATE produtos SET estoque_atual=estoque_atual-? WHERE id=? AND estoque_atual>=?');
@@ -90,7 +102,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <title>Checkout — VittaPet</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"><link href="assets/css/tokens.css" rel="stylesheet"></head><body>
 <nav class="navbar border-bottom"><div class="container"><a class="navbar-brand" href="index.php">VittaPet Store</a><a href="carrinho.php">Voltar ao carrinho</a></div></nav>
 <main class="container py-4" style="max-width:820px"><h1 class="h3 fw-bold">Finalizar pedido</h1>
-<p class="text-muted">No Pix, você será encaminhado para solicitar a chave pelo WhatsApp após registrar o pedido. Para débito ou crédito, o pagamento será realizado na entrega. O frete está em R$ 0,00 apenas para demonstração; não utilizar para vendas reais sem política de frete.</p>
+<p class="text-muted">No Pix, você será encaminhado para solicitar a chave pelo WhatsApp após registrar o pedido. Para débito ou crédito, o pagamento será realizado na entrega. O frete é calculado no servidor com a taxa fixa definida pelo administrador. Entregas fora da área atendida ainda precisam de validação manual pela loja.</p>
+<?php if(!$freteConfigurado):?><div class="alert alert-warning" role="alert">Pedidos temporariamente indisponíveis: configure o frete no painel da loja.</div><?php else: ?><p class="fw-semibold">Taxa de entrega: <?=money($freteExibido)?></p><?php endif;?>
 <?php if($error):?><div class="alert alert-danger"><?=e($error)?></div><?php endif;?>
 <form method="post" class="row g-3" id="checkout"><input type="hidden" name="csrf" value="<?=e(csrf())?>"><input type="hidden" name="nonce" value="<?=e($checkoutNonce)?>">
 <h2 class="h5 mt-4">Seus dados</h2>
@@ -101,7 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <?php endforeach;?><div id="cep-status" class="small text-muted" role="status"></div>
 <h2 class="h5 mt-4">Pagamento</h2><div class="col-12"><label class="form-label" for="metodo">Método</label><select id="metodo" name="metodo" class="form-select"><option value="pix_manual">Pix antecipado — solicitar chave pelo WhatsApp</option><option value="debito_entrega">Débito na entrega</option><option value="credito_entrega">Crédito na entrega</option></select></div>
 <div class="col-12"><p id="payment-hint" class="small text-muted" aria-live="polite">Pix: aguarde a confirmação manual do lojista antes da separação.</p></div>
-<div class="col-12"><button type="submit" class="btn btn-primary btn-lg" <?=empty($cart)?'disabled':''?>>Registrar pedido</button></div></form>
+<div class="col-12"><button type="submit" class="btn btn-primary btn-lg" <?=(empty($cart)||!$freteConfigurado)?'disabled':''?>>Registrar pedido</button></div></form>
 </main>
 <script>
 const cep=document.getElementById('cep'), status=document.getElementById('cep-status');

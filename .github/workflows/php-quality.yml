@@ -31,7 +31,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for file in config/database.php includes/bootstrap.php public/index.php public/login.php public/admin/produtos.php public/checkout.php public/carrinho.php public/rastrear.php database/migrations/006_login_tentativas.sql tests/integration_http.php; do
+          test -f VERSION
+          grep -Eq '^1[.]0[.]0-dev[.][0-9]+$' VERSION || { echo 'VERSION inválida'; exit 1; }
+          for file in config/database.php includes/bootstrap.php public/index.php public/login.php public/admin/produtos.php public/checkout.php public/carrinho.php public/rastrear.php database/migrations/006_login_tentativas.sql database/migrations/007_frete_fixo.sql tests/integration_http.php; do
             test -f "$file" || { echo "Arquivo ausente: $file"; exit 1; }
           done
           if [ -f config/local.php ] || [ -f .env ]; then
