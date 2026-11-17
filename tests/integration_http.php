@@ -145,10 +145,10 @@ try {
 
     $unconfigured = http('/checkout.php', [], 'visitor');
     check($unconfigured['status']===200 && str_contains($unconfigured['body'],'Pedidos temporariamente indisponíveis'), 'Checkout bloqueado até configurar frete');
-    $pdo->exec("UPDATE configuracoes_loja SET frete_fixo='0.00' WHERE id=1");
+    $pdo->exec("UPDATE configuracoes_loja SET frete_fixo='0.00', cep_prefixos_entrega='01001' WHERE id=1");
     $freeCheckout = http('/checkout.php', [], 'visitor');
     check($freeCheckout['status']===200 && str_contains($freeCheckout['body'],'R$ 0,00'), 'Frete grátis explícito é distinto de configuração ausente');
-    $pdo->exec("UPDATE configuracoes_loja SET frete_fixo='8.50' WHERE id=1");
+    $pdo->exec("UPDATE configuracoes_loja SET frete_fixo='8.50', cep_prefixos_entrega=NULL WHERE id=1");
     $uncovered = http('/checkout.php', [], 'visitor');
     check(str_contains($uncovered['body'], 'configure frete e área de entrega'), 'Checkout exige prefixos autorizados antes de liberar pedidos');
     $pdo->exec("UPDATE configuracoes_loja SET cep_prefixos_entrega='01001' WHERE id=1");
