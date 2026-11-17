@@ -1,7 +1,7 @@
 # Instalação inicial (desenvolvimento)
 
 1. Configure PHP 8 com extensões PDO MySQL e mbstring, MySQL e servidor web.
-2. Crie o banco `vittapet_db` com UTF8MB4 e importe `database/migrations/001_store_base.sql` e, em seguida, `database/migrations/002_pedidos.sql` e `database/migrations/003_financeiro.sql`, depois `database/migrations/004_localizacao_loja.sql` e por último `database/migrations/005_pagamentos_whatsapp.sql`.
+2. Crie o banco `vittapet_db` com UTF8MB4 e importe `database/migrations/001_store_base.sql` e, em seguida, `database/migrations/002_pedidos.sql` e `database/migrations/003_financeiro.sql`, depois `database/migrations/004_localizacao_loja.sql` e por último `database/migrations/005_pagamentos_whatsapp.sql` e por último `database/migrations/006_login_tentativas.sql`.
 3. Copie `config/local.example.php` para `config/local.php` e configure credenciais **localmente**. Não commitar `local.php`.
 4. Crie o usuário administrador **por procedimento local seguro**, gerando hash com `php -r "echo password_hash('SENHA_FORTE', PASSWORD_DEFAULT), PHP_EOL;"` e inserindo o hash no campo `senha_hash` com SQL parametrizado ou ferramenta local. Não versionar senha.
 5. Em desenvolvimento, execute `php -S localhost:8000 -t public` a partir da raiz do projeto.
@@ -16,3 +16,6 @@ No painel administrativo acesse `admin/configuracoes.php`, preencha endereço, c
 
 ## WhatsApp Pix
 Na administração abra Configurações e informe o WhatsApp comercial no formato `55 + DDD + número`. O checkout Pix gera o pedido e o botão da tela de rastreio abre conversa com mensagem pré-preenchida; o cliente precisa enviar a mensagem. Conferência de pagamento é manual. Consulte [Pagamentos v1](PAGAMENTOS_V1.md).
+
+## Segurança e controle de acesso
+A migration 006 é obrigatória para login e rastreio: cria tabelas de tentativas e controle de consultas. Após instalar, teste login com hash gerado localmente, bloqueio de tentativas e logout por POST. Execute os testes da [Revisão QA 05](QA_REVISAO_05.md). Sem a migration 006, login e rastreio não funcionarão corretamente.
