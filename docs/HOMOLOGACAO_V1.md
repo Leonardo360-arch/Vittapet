@@ -1,8 +1,11 @@
 # Homologação formal — VittaPet Store v1
 
-**Versão atual em homologação:** `1.0.0-dev.6` (revisão documental); **`rc.1` ainda não autorizada**; incremento por correção em `VERSION` e `CHANGELOG.md` antes de cada merge. Ver `docs/VERSIONAMENTO.md`.
+**Versão atual em homologação:** `1.0.0-dev.7` (revisão documental); **`rc.1` ainda não autorizada**; incremento por correção em `VERSION` e `CHANGELOG.md` antes de cada merge. Ver `docs/VERSIONAMENTO.md`.
 
 **Ambiente atual:** código em GitHub, CI PHP/MySQL e Playwright Chromium executados; **InfinityFree não instalado**. Documento vivo: registrar resultados, não preencher com aprovações hipotéticas.
+
+## Ambiente de homologação local
+O ambiente `compose.local.yaml` permite executar PHP 8.2, MySQL 8 e phpMyAdmin em `localhost` para testes humanos. Veja [Guia Windows](LOCALHOST_WINDOWS.md). A instalação local **não substitui os testes das APIs reais em dispositivo físico, nem constitui implantação InfinityFree**.
 
 ## Portões de qualidade
 | Porta | Evidência obrigatória | Estado inicial |

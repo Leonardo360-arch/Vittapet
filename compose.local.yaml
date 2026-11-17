@@ -1,0 +1,57 @@
+# Ambiente SOMENTE local — não usar estas credenciais em produção.
+name: vittapet-local
+
+services:
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: vittapet_db
+      MYSQL_USER: vittapet_local
+      MYSQL_PASSWORD: vittapet_dev_only
+      MYSQL_ROOT_PASSWORD: root_dev_only
+    volumes:
+      - db_local:/var/lib/mysql
+      # MySQL importa os 9 arquivos .sql em ordem alfabética apenas na PRIMEIRA criação do volume.
+      - ./database/migrations:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 25s
+
+  app:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.local
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    working_dir: /var/www/html
+    environment:
+      APP_ENV: local
+      DB_HOST: db
+      DB_NAME: vittapet_db
+      DB_USER: vittapet_local
+      DB_PASS: vittapet_dev_only
+    volumes:
+      - ./:/var/www/html
+    ports:
+      - "127.0.0.1:8080:80"
+
+  phpmyadmin:
+    image: phpmyadmin:5
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+    ports:
+      - "127.0.0.1:8081:80"
+
+volumes:
+  db_local:

@@ -1,5 +1,8 @@
 # Instalação inicial (desenvolvimento)
 
+**Windows + Docker Desktop:** prefira o passo a passo completo em [LOCALHOST_WINDOWS.md](LOCALHOST_WINDOWS.md). O comando assistido prepara PHP 8.2, MySQL 8, phpMyAdmin, migrations e administração sem configurar PHP ou MySQL diretamente no Windows. Este documento também serve para instalação manual/XAMPP.
+
+
 1. Configure PHP 8 com extensões PDO MySQL e mbstring, MySQL e servidor web.
 2. Crie o banco `vittapet_db` com UTF8MB4 e importe, **uma vez e na ordem**, todos os arquivos `database/migrations/001_*.sql` até `009_*.sql`. Não reexecutar indiscriminadamente migrations com `ALTER TABLE` em banco já migrado.
 3. Copie `config/local.example.php` para `config/local.php` e configure credenciais **localmente**. Não commitar `local.php`.

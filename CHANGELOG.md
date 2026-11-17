@@ -2,6 +2,13 @@
 
 Este histórico identifica versões **planejadas/documentadas** e versões **lançadas**. Não significa que o sistema já está implementado.
 
+## [1.0.0-dev.7] — Ambiente local de homologação (17/11/2026)
+- Ambiente Docker Compose para Windows/WSL2: PHP 8.2/Apache, MySQL 8 e phpMyAdmin, isolados em localhost.
+- Importação das migrations 001–009 em banco novo, provisionamento administrativo guiado sem senha no Git e diagnóstico sem alteração de dados.
+- Script opcional de quatro produtos DEMO para visualização; nenhuma semeadura automática na loja.
+- Manual de instalação Windows e opção sem Docker. Infraestrutura local não entra no pacote InfinityFree.
+- Gate do CI valida Compose e diagnóstico local sem perder testes existentes.
+
 ## [1.0.0-dev.6] — Preparação documental de liberação (17/11/2026)
 - README, arquitetura, instalação, matriz de QA, hospedagem e homologação sincronizados com as migrations 001–009 e a evidência real do CI.
 - Manual operacional, checklist de entrega e relatório de liberação criados; APIs externas, celulares físicos e InfinityFree permanecem pendentes.
