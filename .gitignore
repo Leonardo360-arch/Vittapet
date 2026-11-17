@@ -4,3 +4,20 @@
 !/storage/logs/.gitkeep
 /vendor/
 *.log
+
+# Artefatos locais e empacotamento; o código-fonte e a documentação ficam no Git
+/build/
+/dist/
+/coverage/
+/.phpunit.cache/
+/.phpunit.result.cache
+/.idea/
+/.vscode/
+/node_modules/
+/tmp/
+/temp/
+*.bak
+*.sql.gz
+*.zip
+.DS_Store
+Thumbs.db

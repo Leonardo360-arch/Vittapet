@@ -33,7 +33,7 @@ jobs:
           set -euo pipefail
           test -f VERSION
           grep -Eq '^1[.]0[.]0-dev[.][0-9]+$' VERSION || { echo 'VERSION inválida'; exit 1; }
-          for file in config/database.php includes/bootstrap.php public/index.php public/login.php public/admin/produtos.php public/checkout.php public/carrinho.php public/rastrear.php database/migrations/006_login_tentativas.sql database/migrations/007_frete_fixo.sql database/migrations/008_cobertura_cep.sql database/migrations/009_auditoria_pagamentos.sql includes/delivery_coverage.php tests/integration_http.php; do
+          for file in config/database.php includes/bootstrap.php public/index.php public/login.php public/admin/produtos.php public/checkout.php public/carrinho.php public/rastrear.php database/migrations/006_login_tentativas.sql database/migrations/007_frete_fixo.sql database/migrations/008_cobertura_cep.sql database/migrations/009_auditoria_pagamentos.sql includes/delivery_coverage.php includes/order_inventory.php tests/integration_http.php tests/concurrency_stock.php scripts/build_deploy.php; do
             test -f "$file" || { echo "Arquivo ausente: $file"; exit 1; }
           done
           if [ -f config/local.php ] || [ -f .env ]; then
@@ -101,6 +101,22 @@ jobs:
           exit 1
       - name: Testes integrados HTTP e MySQL
         run: php tests/integration_http.php
+      - name: 'Corrida real: duas conexões disputam última unidade'
+        run: php tests/concurrency_stock.php
+      - name: Conferir pacote limpo para hospedagem
+        shell: bash
+        run: |
+          set -euo pipefail
+          php scripts/build_deploy.php
+          test -f build/htdocs/.htaccess
+          test -f build/htdocs/public/checkout.php
+          test -f build/htdocs/includes/order_inventory.php
+          test ! -e build/htdocs/config/local.php
+          test ! -e build/htdocs/database
+          test ! -e build/htdocs/tests
+          test ! -e build/htdocs/docs
+          test ! -e build/htdocs/scripts
+          test ! -e build/htdocs/.git
       - name: Log do PHP em falha
         if: failure()
         run: cat /tmp/vittapet-php.log || true

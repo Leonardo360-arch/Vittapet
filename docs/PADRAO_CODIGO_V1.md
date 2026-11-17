@@ -25,7 +25,7 @@
 - Nunca commitar senha, telefone de cliente real, chave Pix, backup ou credenciais de teste externas.
 
 ## 4. Dívidas técnicas verificadas
-A versão atualmente implementada contém rotas PHP monolíticas, SQL embutido nas views e trechos de JavaScript em templates. Isso não impede testar o MVP, mas impede afirmar que todo código já atende integralmente a separação de responsabilidades. Priorizar:
+A partir da dev.4 o checkout delega estoque a `includes/order_inventory.php`, mas ainda existem rotas PHP monolíticas e SQL nos templates. O projeto contém rotas PHP monolíticas, SQL embutido nas views e trechos de JavaScript em templates. Isso não impede testar o MVP, mas impede afirmar que todo código já atende integralmente a separação de responsabilidades. Priorizar:
 1. Proteção de estoque/pagamento e testes P0.
 2. Extrair camada de cálculo monetário com valores em centavos ou decimal com precisão estável, e reduzir duplicações.
 3. Centralizar estados e transições em serviço com testes.
