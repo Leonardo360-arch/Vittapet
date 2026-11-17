@@ -3,6 +3,7 @@
 Este histórico identifica versões **planejadas/documentadas** e versões **lançadas**. Não significa que o sistema já está implementado.
 
 ## [1.0.0] — Em desenvolvimento (17/11/2026)
+- Gate de integração em PHP 8.2/MySQL 8: 55 asserções HTTP/SQL passaram no GitHub Actions (run 44097037063). Documentação técnica, matriz 42 cenários, padrão de código, homologação formal e plano futuro com datas. Ainda faltam casos manuais, frete real, estorno, acesso no InfinityFree e aprovação final.
 - Revisão de segurança em branch: migration 006 de limitação de login e rastreio, expiração e reverificação de sessão administrativa, logout com POST/CSRF, CI PHP lint e QA revisão 05. Integração/execução de testes ainda pendentes.
 - Fluxo Pix antecipado via link de WhatsApp com mensagem preenchida e confirmação manual, e débito/crédito na entrega, sem status logístico de espera por pagamento. Migration 005, configuração do número, checkout, rastreio e painel adaptados. Revisão estática QA 04; testes pendentes.
 - Etapa de localização (em branch, pendente de validação em navegador): migration 004 de configurações, painel administrativo com consulta pontual à API JSON de geocodificação, persistência das coordenadas, mapa Leaflet na homepage e links de rota; nenhum endereço fictício publicado.
