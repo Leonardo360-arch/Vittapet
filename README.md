@@ -1,33 +1,44 @@
-# VittaPet Store — MVP acadêmico (v1.0)
+# VittaPet Store
 
-Loja virtual de produtos pet em PHP 8, MySQL e JavaScript, preparada para evoluir para o ecossistema VittaPet.
+**Projeto:** loja virtual de produtos pet em PHP 8, MySQL, HTML5, CSS3, Bootstrap 5 e JavaScript. O código será preparado para evoluir, no futuro, para o VittaPet Ecosystem.
 
-## Escopo obrigatório da v1.0
+## Versões
 
-**Somente loja:** catálogo, categorias, carrinho, checkout, histórico de pedidos, acompanhamento de embalagem e entrega, estoque, painel administrativo, indicadores e relatórios financeiros. Não existem serviços veterinários, banho e tosa ou agendamento nesta versão.
+| Versão | Escopo | Estado |
+|---|---|---|
+| **v1.0.0 — Store** | Catálogo, CRUD, carrinho reativo, checkout, pedidos/entregas, estoque, financeiro, dashboard, ViaCEP e mapa | **Documentação definida; implementação pendente** |
+| **v2.0.0 — Ecosystem** | Serviços, clínica, tutores/pets, Portal do Tutor, VittaBot, mural, pontos e outras APIs | **Planejada; não implementada** |
 
-### Requisitos acadêmicos de DW2 — entrega em 23/11/2026
-- [ ] CRUD completo e real de produtos usando MySQL e PHP
-- [ ] Interface original e responsiva
-- [ ] Consumo e apresentação de JSON de duas APIs (ViaCEP + Dog CEO como proposta)
-- [ ] Publicação verificável no InfinityFree
-- [ ] Documentação técnica e credenciais de teste (quando necessário), entregues no Teams
+> A versão 1.0 é **exclusivamente uma loja de produtos pet**. Não inclui veterinário, banho e tosa, serviços, agendamento, galeria de cães ou mural social.
 
-### Fluxo comercial alvo
-Produto -> Carrinho -> Checkout -> Pedido aguardando pagamento -> Em separação -> Embalado -> Saiu para entrega -> Entregue. Cancelamento e exceções devem ser tratados com histórico. **Não marcar pagamento como confirmado sem confirmação confiável**; para o MVP podem existir meios manuais explicitamente identificados.
+## Entrega acadêmica — Desenvolvimento Web II
 
-### Dashboard alvo
-Receita confirmada, despesas, resultado estimado (com custo de mercadorias), pedidos por status, ticket médio, produtos mais vendidos, estoque baixo e gráficos por período. Dados demonstrativos devem ser identificados e não confundidos com dados reais.
+**Prazo: 23/11/2026.** Critérios de avaliação do exercício:
+- [ ] CRUD funcional com PHP e MySQL — 2,5 pontos
+- [ ] Originalidade e interface própria — 2,0 pontos
+- [ ] Documentação técnica — 2,0 pontos
+- [ ] Hospedagem e link público no InfinityFree — 2,0 pontos
+- [ ] Consumo de **duas APIs JSON** — 1,5 ponto: **ViaCEP** no checkout e **geocodificação de endereço** para localizar a loja no mapa.
 
-### Segurança
-Autenticação e autorização administrativa, password_hash/password_verify, PDO parametrizado, CSRF para alterações, transações de pedidos/estoque, segredos fora da pasta pública, rastreio por token não enumerável, logs sem dados sensíveis e validação de entradas.
+## Fluxo da loja
+Catálogo → carrinho de atualização automática → checkout → pedido → aguardando pagamento → em separação → embalado → saiu para entrega → entregue. Cancelamentos e estados financeiros são tratados separadamente.
 
-## Versão 2.0 — Ecossistema integrado
-A documentação VittaPet v2.1 anterior passa a ser **especificação de evolução**: tutores/pets, clínica, prontuários, vacinas, exames, banho e tosa, agenda, portal do tutor, VittaBot, mural, fidelidade, concursos, notificações e serviços integrados. A versão 2.0 do produto não significa que todos os módulos existentes no documento original tenham sido implementados.
+O dashboard apresentará dados do MySQL, com receita efetivamente confirmada, despesas, resultado estimado, pedidos e estoque. O valor final de compras será recalculado pelo servidor, não confiado ao navegador.
 
-## Arquitetura
-Monólito modular em PHP/PDO/MySQL, com camadas de apresentação, controllers, services e repositories, migrations incrementais e apenas arquivos públicos expostos. Evitar padrões de projeto sem justificativa. A arquitetura deve permitir adicionar novos módulos sem refazer o catálogo, os usuários, o financeiro e os pedidos.
+## Documentação oficial
+- [Especificação completa da v1.0](docs/VERSAO_1_0.md)
+- [Identidade visual, UX e CSS](docs/DESIGN_SYSTEM.md)
+- [Roadmap e etapas de desenvolvimento](docs/ROADMAP.md)
+- [Backlog da versão 2.0](docs/VERSAO_2_0_BACKLOG.md)
+- [Histórico e controle de versões](CHANGELOG.md)
+- [QA — Revisão técnica 01](docs/QA_REVISAO_01.md)
+- [Instalação local](docs/INSTALACAO.md)
 
-## Documentação e andamento
-- [Roadmap e escopo detalhado](docs/ROADMAP.md)
-- Estado atual: **planejamento atualizado; implementação e testes ainda pendentes**.
+## Arquitetura planejada
+Monólito modular PHP com PDO/MySQL e camadas de controllers, services e repositories; migrations versionadas, testes, configuração privada fora do webroot e apenas `public/` acessível pelo servidor. A configuração de hospedagem InfinityFree deve ser testada sem expor segredos.
+
+## Controle de progresso
+**Situação em 17/11/2026:** fundação, CRUD, carrinho, checkout inicial, pedidos e rastreio **enviados para a branch `develop`**. **Ainda não foram validados em execução com MySQL e não há publicação concluída.** Consulte a revisão de QA para bloqueadores. A branch `main` será atualizada mediante revisão e aprovação da entrega, sem confundir documentação aprovada com release funcional.
+
+## Desenvolvimento e colaboração
+Evitar segredos no Git, escrever commits explicativos, revisar PRs antes de integrar na `main`, e atualizar [CHANGELOG.md](CHANGELOG.md) a cada mudança significativa. Novos recursos devem preservar a compatibilidade com os módulos já implementados.
