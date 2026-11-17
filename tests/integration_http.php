@@ -140,6 +140,9 @@ try {
 
     $unconfigured = http('/checkout.php', [], 'visitor');
     check($unconfigured['status']===200 && str_contains($unconfigured['body'],'Pedidos temporariamente indisponíveis'), 'Checkout bloqueado até configurar frete');
+    $pdo->exec("UPDATE configuracoes_loja SET frete_fixo='0.00' WHERE id=1");
+    $freeCheckout = http('/checkout.php', [], 'visitor');
+    check($freeCheckout['status']===200 && str_contains($freeCheckout['body'],'R$ 0,00'), 'Frete grátis explícito é distinto de configuração ausente');
     $pdo->exec("UPDATE configuracoes_loja SET frete_fixo='8.50' WHERE id=1");
     $cartCsrf = field($home['body'], 'csrf');
     $add = http('/carrinho.php', ['csrf'=>$cartCsrf,'id'=>$productId,'quantity'=>1,'action'=>'add'], 'visitor', false, true);
