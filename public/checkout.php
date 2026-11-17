@@ -2,6 +2,7 @@
 declare(strict_types=1);
 require dirname(__DIR__) . '/includes/bootstrap.php';
 require_once dirname(__DIR__) . '/includes/delivery_coverage.php';
+require_once dirname(__DIR__) . '/includes/order_inventory.php';
 
 $error = null;
 $freteConfigurado = false;
@@ -51,24 +52,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new InvalidArgumentException('CEP fora da área de entrega configurada pela loja.');
         }
         $shippingCents = (int)round((float)$shipping * 100);
-        $ids = array_map('intval',array_keys($cart));
-        sort($ids, SORT_NUMERIC);
-        $marks = implode(',',array_fill(0,count($ids),'?'));
-        $stmt=$pdo->prepare("SELECT id,preco_venda,custo_unitario,estoque_atual,ativo FROM produtos WHERE id IN ($marks) ORDER BY id FOR UPDATE");
-        $stmt->execute($ids);
-        $products=$stmt->fetchAll();
-        if(count($products)!==count($ids)) throw new InvalidArgumentException('Algum produto não está mais disponível.');
-        $subtotalCents=0;
-        foreach($products as &$item) {
-            $id=(int)$item['id'];
-            $qty=(int)($cart[$id]??0);
-            if($qty < 1 || $qty>99 || !(int)$item['ativo'] || $qty>(int)$item['estoque_atual']) throw new InvalidArgumentException('Confira a disponibilidade dos produtos.');
-            $item['qty']=$qty;
-            $item['price_cents']=(int)round((float)$item['preco_venda']*100);
-            $subtotalCents+=$item['price_cents']*$qty;
-        }
-        unset($item);
-        if($subtotalCents<1) throw new InvalidArgumentException('O total do pedido deve ser maior que zero.');
+        $lockedInventory = lockCheckoutInventory($pdo, $cart);
+        $products = $lockedInventory['products'];
+        $subtotalCents = $lockedInventory['subtotalCents'];
         // Política v1: taxa fixa cadastrada e validada no servidor.
         $freteCents=$shippingCents;
         $isPix=$values['metodo']==='pix_manual';
@@ -81,15 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $order=$pdo->prepare("INSERT INTO pedidos(cliente_id,token_rastreio,endereco_cep,endereco_logradouro,endereco_numero,endereco_complemento,endereco_bairro,endereco_cidade,endereco_uf,subtotal,frete,desconto,total,metodo_pagamento,status_pagamento,status_logistico) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
         $order->execute([$clienteId,$token,preg_replace('/\D/','',$values['cep']),$values['logradouro'],$values['numero'],$values['complemento']?:null,$values['bairro'],$values['cidade'],strtoupper($values['uf']),number_format($subtotalCents/100,2,'.','.'),number_format($freteCents/100,2,'.','.'),'0.00',number_format(($subtotalCents+$freteCents)/100,2,'.','.'),$values['metodo'],$paymentStatus,$logisticStatus]);
         $orderId=(int)$pdo->lastInsertId();
-        $insert=$pdo->prepare('INSERT INTO pedido_itens(pedido_id,produto_id,quantidade,preco_unitario,custo_unitario) VALUES(?,?,?,?,?)');
-        $decrement=$pdo->prepare('UPDATE produtos SET estoque_atual=estoque_atual-? WHERE id=? AND estoque_atual>=?');
-        $movement=$pdo->prepare("INSERT INTO movimentacoes_estoque(produto_id,pedido_id,tipo,quantidade) VALUES(?,?,'saida_venda',?)");
-        foreach($products as $item) {
-            $insert->execute([$orderId,$item['id'],$item['qty'],$item['preco_venda'],$item['custo_unitario']]);
-            $decrement->execute([$item['qty'],$item['id'],$item['qty']]);
-            if($decrement->rowCount()!==1)throw new RuntimeException('Estoque inconsistente.');
-            $movement->execute([$item['id'],$orderId,-$item['qty']]);
-        }
+        persistCheckoutInventory($pdo, $orderId, $products);
         $hist=$pdo->prepare("INSERT INTO pedido_historico(pedido_id,status_anterior,status_novo) VALUES (?,NULL,?)");
         $hist->execute([$orderId,$logisticStatus]);
         $pdo->commit();
