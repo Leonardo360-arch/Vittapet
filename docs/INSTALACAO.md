@@ -1,7 +1,7 @@
 # Instalação inicial (desenvolvimento)
 
 1. Configure PHP 8 com extensões PDO MySQL e mbstring, MySQL e servidor web.
-2. Crie o banco `vittapet_db` com UTF8MB4 e importe `database/migrations/001_store_base.sql` e, em seguida, `database/migrations/002_pedidos.sql` e `database/migrations/003_financeiro.sql`, depois `database/migrations/004_localizacao_loja.sql`.
+2. Crie o banco `vittapet_db` com UTF8MB4 e importe `database/migrations/001_store_base.sql` e, em seguida, `database/migrations/002_pedidos.sql` e `database/migrations/003_financeiro.sql`, depois `database/migrations/004_localizacao_loja.sql` e por último `database/migrations/005_pagamentos_whatsapp.sql`.
 3. Copie `config/local.example.php` para `config/local.php` e configure credenciais **localmente**. Não commitar `local.php`.
 4. Crie o usuário administrador **por procedimento local seguro**, gerando hash com `php -r "echo password_hash('SENHA_FORTE', PASSWORD_DEFAULT), PHP_EOL;"` e inserindo o hash no campo `senha_hash` com SQL parametrizado ou ferramenta local. Não versionar senha.
 5. Em desenvolvimento, execute `php -S localhost:8000 -t public` a partir da raiz do projeto.
@@ -13,3 +13,6 @@
 
 ## Configuração do mapa
 No painel administrativo acesse `admin/configuracoes.php`, preencha endereço, clique em **Localizar endereço no mapa**, confira as coordenadas retornadas pela API JSON e salve. Na homepage, o mapa Leaflet aparecerá depois que latitude e longitude forem salvas; sem coordenadas, o endereço informativo permanece e nenhum ponto fictício é exibido.
+
+## WhatsApp Pix
+Na administração abra Configurações e informe o WhatsApp comercial no formato `55 + DDD + número`. O checkout Pix gera o pedido e o botão da tela de rastreio abre conversa com mensagem pré-preenchida; o cliente precisa enviar a mensagem. Conferência de pagamento é manual. Consulte [Pagamentos v1](PAGAMENTOS_V1.md).
