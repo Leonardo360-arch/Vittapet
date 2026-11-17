@@ -133,8 +133,7 @@ try {
     http('/admin/produtos.php', ['csrf'=>$adminCsrf,'action'=>'delete','id'=>$created], 'admin', false, true);
     check((int)$pdo->query("SELECT ativo FROM produtos WHERE id=$created")->fetchColumn()===0, 'CRUD: exclusão lógica não destrói cadastro');
 
-    $cartPage = http('/carrinho.php');
-    $cartCsrf = field($cartPage['body'], 'csrf');
+    $cartCsrf = field($home['body'], 'csrf');
     $add = http('/carrinho.php', ['csrf'=>$cartCsrf,'id'=>$productId,'quantity'=>1,'action'=>'add'], 'visitor', false, true);
     check($add['status'] === 302, 'Carrinho: inclusão de produto');
     $changed = http('/carrinho.php', ['csrf'=>$cartCsrf,'id'=>$productId,'quantity'=>2], 'visitor', true, true);
@@ -159,7 +158,7 @@ try {
     $pix=orderByToken($pdo,$pixToken);
     check($pix['status_pagamento']==='confirmado' && $pix['status_logistico']==='em_separacao', 'Pix confirmado avança automaticamente para separação');
 
-    $cartAgain=http('/carrinho.php', [], 'cardbuyer');
+    $cartAgain=http('/index.php', [], 'cardbuyer');
     $cardCsrf=field($cartAgain['body'],'csrf');
     http('/carrinho.php', ['csrf'=>$cardCsrf,'id'=>$productId,'quantity'=>1,'action'=>'add'], 'cardbuyer', false, true);
     $cardToken=placeOrder('debito_entrega','cardbuyer');
