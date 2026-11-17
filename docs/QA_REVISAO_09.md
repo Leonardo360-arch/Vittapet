@@ -23,12 +23,20 @@
 ## Preservação de negócio
 Sem alteração de tabelas ou migrations. As consultas financeiras mantêm a regra de `status_pagamento='confirmado'` e `pago_em`, com exclusão dos pedidos já estornados do saldo atual. Não se trata de relatório contábil histórico nem um gráfico de entrada/saída bancária. Pedidos legados sem `pago_em` seguem em alerta de conciliação.
 
+## Evidências CI dev.8
+- GitHub Actions: [execução 44124536164](https://github.com/Leonardo360-arch/Vittapet/actions/runs/44124536164), commit `76153ad6b2e6eada556313b171a17bd9525b95f3`.
+- `php-lint`: aprovado.
+- `local-smoke` (Docker, MySQL e vitrine): aprovado.
+- `mysql-http`: aprovado com **78 asserções HTTP/MySQL** e teste concorrente real (1 venda, 1 rejeição, estoque final 0).
+- Playwright Chromium: **18 testes aprovados**, incluindo três execuções do novo cenário administrativo em viewport mobile/tablet/desktop.
+- Restrições: emulação não equivale a inspeção visual física; o componente compartilhado ainda não foi aplicado em todas as páginas administrativas.
+
 ## Gate de validação
-- [ ] `php-lint`: PHP dos componentes sem erro.
-- [ ] Suíte HTTP/MySQL: 78 asserções sem regressões.
-- [ ] Concorrência: sem regressão da venda da última unidade.
-- [ ] Playwright: teste de dashboard nas três resoluções emuladas (previstos 18 cenários totais).
-- [ ] HTML sem overflow horizontal nas resoluções utilizadas pelo Playwright.
+- [x] `php-lint`: PHP dos componentes sem erro.
+- [x] Suíte HTTP/MySQL: 78 asserções sem regressões.
+- [x] Concorrência: sem regressão da venda da última unidade.
+- [x] Playwright: dashboard testado nas três resoluções emuladas (18 cenários totais).
+- [x] HTML sem overflow horizontal nas resoluções utilizadas pelo Playwright.
 - [ ] Acessibilidade: foco, links e leitura das tabelas; inspeção manual com teclado/leitor de tela pendente.
 - [ ] Revisão de screenshots reais após atualização do localhost.
 - [ ] Aplicação do cabeçalho nas demais páginas administrativas em etapa posterior.
