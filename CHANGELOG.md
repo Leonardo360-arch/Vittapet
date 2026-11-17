@@ -8,6 +8,7 @@ Este histórico identifica versões **planejadas/documentadas** e versões **lan
 - Definidas duas APIs da primeira versão: ViaCEP e geocodificação de endereço da loja com mapa.
 - Identidade proposta: verde/turquesa/laranja, Poppins e Inter, controles slim.
 - Documentação funcional, técnica, visual e critérios de aceite organizados.
+- **Segunda etapa iniciada:** migration 002 com clientes, pedidos, itens, histórico e movimentações de estoque; checkout com transação e ViaCEP; rastreio público por token; painel de status e pagamento manual. Revisão estática registrada em `docs/QA_REVISAO_01.md`, com bloqueadores de release.
 - **Implementação inicial adicionada à develop:** schema MySQL de usuários/categorias/produtos, PDO, login administrativo, CRUD, catálogo e carrinho de sessão com atualização por Fetch. **Não testados em execução nem implantados.** Checkout, histórico de pedidos, financeiro, duas APIs e mapa ainda pendentes. Não existe release 1.0.0 final validada.
 
 ## [2.0.0] — Planejamento futuro
