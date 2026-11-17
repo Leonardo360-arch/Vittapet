@@ -1,0 +1,12 @@
+{
+  "name": "vittapet-browser-qa",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Somente ferramentas de teste browser, não usadas em produção",
+  "scripts": {
+    "test:browser": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1"
+  }
+}
