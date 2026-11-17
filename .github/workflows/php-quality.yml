@@ -20,6 +20,8 @@ jobs:
           php-version: '8.2'
           extensions: pdo_mysql, mbstring, curl
           coverage: none
+      - name: Construir runtime PHP do localhost
+        run: docker build --file docker/Dockerfile.local --tag vittapet-local-qa docker
       - name: Verificar sintaxe PHP
         shell: bash
         run: |
@@ -33,8 +35,9 @@ jobs:
           set -euo pipefail
           test -f VERSION
           php scripts/check_docs.php
+          docker compose -f compose.local.yaml config --quiet
           grep -Eq '^1[.]0[.]0-dev[.][0-9]+$' VERSION || { echo 'VERSION inválida'; exit 1; }
-          for file in config/database.php includes/bootstrap.php public/index.php public/login.php public/admin/produtos.php public/checkout.php public/carrinho.php public/rastrear.php database/migrations/006_login_tentativas.sql database/migrations/007_frete_fixo.sql database/migrations/008_cobertura_cep.sql database/migrations/009_auditoria_pagamentos.sql includes/delivery_coverage.php includes/order_inventory.php tests/integration_http.php tests/concurrency_stock.php tests/seed_browser.php scripts/build_deploy.php scripts/check_docs.php package.json playwright.config.cjs tests/browser/store.spec.cjs; do
+          for file in compose.local.yaml docker/Dockerfile.local scripts/setup_local.ps1 scripts/check_local.php scripts/seed_local.php docs/LOCALHOST_WINDOWS.md config/database.php includes/bootstrap.php public/index.php public/login.php public/admin/produtos.php public/checkout.php public/carrinho.php public/rastrear.php database/migrations/006_login_tentativas.sql database/migrations/007_frete_fixo.sql database/migrations/008_cobertura_cep.sql database/migrations/009_auditoria_pagamentos.sql includes/delivery_coverage.php includes/order_inventory.php tests/integration_http.php tests/concurrency_stock.php tests/seed_browser.php scripts/build_deploy.php scripts/check_docs.php package.json playwright.config.cjs tests/browser/store.spec.cjs; do
             test -f "$file" || { echo "Arquivo ausente: $file"; exit 1; }
           done
           if [ -f config/local.php ] || [ -f .env ]; then
@@ -88,6 +91,8 @@ jobs:
           done
       - name: Provisionar administrador de teste
         run: php scripts/create_admin.php
+      - name: Diagnóstico do schema para localhost
+        run: php scripts/check_local.php
       - name: Servidor PHP local
         shell: bash
         run: |
