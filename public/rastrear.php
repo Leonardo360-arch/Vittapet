@@ -4,6 +4,22 @@ require dirname(__DIR__) . '/includes/bootstrap.php';
 $token=strtoupper(trim((string)($_GET['token']??'')));
 $order=null;$history=[];$error=null;$whatsappUrl=null;
 if($token!==''){
+ $allowed=false;
+ try {
+   $ipHash=hash('sha256',(string)($_SERVER['REMOTE_ADDR']??'unknown'));
+   $since=date('Y-m-d H:i:s',time()-10*60);
+   $limit=db()->prepare('SELECT COUNT(*) FROM consultas_rastreio WHERE ip_hash=? AND criado_em>=?');
+   $limit->execute([$ipHash,$since]);
+   if((int)$limit->fetchColumn()>=40){
+     http_response_code(429);
+     $error='Limite de consultas atingido. Tente novamente mais tarde.';
+   } else {
+     $record=db()->prepare('INSERT INTO consultas_rastreio(ip_hash) VALUES(?)');
+     $record->execute([$ipHash]);
+     $allowed=true;
+   }
+ }catch(Throwable $ex){error_log($ex->getMessage());$error='Consulta temporariamente indisponível.';}
+ if($allowed){
  if(!preg_match('/^VP-[0-9]{2}-[A-F0-9]{16}$/D',$token)) $error='Pedido não localizado.';
  else {
   try {
@@ -23,6 +39,7 @@ if($token!==''){
      $h->execute([$order['id']]);$history=$h->fetchAll();
     }else $error='Pedido não localizado.';
   }catch(Throwable $ex){error_log($ex->getMessage());$error='Consulta temporariamente indisponível.';}
+ }
  }
 }
 $labels=['aguardando_pagamento'=>'Aguardando pagamento','em_separacao'=>'Em separação','embalado'=>'Pedido embalado','saiu_para_entrega'=>'Saiu para entrega','entregue'=>'Entregue','cancelado'=>'Cancelado'];
