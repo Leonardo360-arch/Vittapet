@@ -2,6 +2,12 @@
 
 Este histórico identifica versões **planejadas/documentadas** e versões **lançadas**. Não significa que o sistema já está implementado.
 
+## [1.0.0-dev.3] — Em homologação (17/11/2026)
+- Registro de estorno manual de pagamento já reembolsado externamente, com justificativa, cancelamento, estoque e histórico transacionais.
+- Data de recebimento `pago_em`, data de registro `estornado_em` e aviso de pedidos legados, migration 009.
+- Dashboard filtra datas de confirmação e exclui pedidos estornados do saldo atual; não é razão contábil.
+- Testes incrementais e revisão QA 06; InfinityFree continua última etapa.
+
 ## [1.0.0-dev.2] — Em desenvolvimento (17/11/2026)
 - Migration 008, cadastro de prefixos de CEP atendidos e verificação transacional de cobertura no checkout.
 - Extração da validação para `includes/delivery_coverage.php` e testes de CEP permitido, negado e ausência de configuração.
