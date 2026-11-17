@@ -101,7 +101,7 @@ try {
     foreach (['pedidos', 'pedido_itens', 'pedido_historico', 'despesas', 'configuracoes_loja', 'login_tentativas', 'consultas_rastreio'] as $table) {
         check((bool)$pdo->query("SHOW TABLES LIKE " . $pdo->quote($table))->fetchColumn(), "Migration: tabela $table presente");
     }
-    $pdo->exec("UPDATE configuracoes_loja SET whatsapp='5511999999999' WHERE id=1");
+    $pdo->exec("UPDATE configuracoes_loja SET whatsapp='5511999999999', frete_fixo=NULL WHERE id=1");
     $cat = (int)$pdo->query('SELECT id FROM categorias ORDER BY id LIMIT 1')->fetchColumn();
     $seed = $pdo->prepare('INSERT INTO produtos(categoria_id,nome,descricao,preco_venda,custo_unitario,estoque_atual,estoque_minimo) VALUES(?,?,?,?,?,?,?)');
     $seed->execute([$cat, 'Ração de teste QA', 'Produto isolado do CI', '49.90', '25.00', 10, 2]);
@@ -138,6 +138,9 @@ try {
     http('/admin/produtos.php', ['csrf'=>$adminCsrf,'action'=>'delete','id'=>$created], 'admin', false, true);
     check((int)$pdo->query("SELECT ativo FROM produtos WHERE id=$created")->fetchColumn()===0, 'CRUD: exclusão lógica não destrói cadastro');
 
+    $unconfigured = http('/checkout.php', [], 'visitor');
+    check($unconfigured['status']===200 && str_contains($unconfigured['body'],'Pedidos temporariamente indisponíveis'), 'Checkout bloqueado até configurar frete');
+    $pdo->exec("UPDATE configuracoes_loja SET frete_fixo='8.50' WHERE id=1");
     $cartCsrf = field($home['body'], 'csrf');
     $add = http('/carrinho.php', ['csrf'=>$cartCsrf,'id'=>$productId,'quantity'=>1,'action'=>'add'], 'visitor', false, true);
     check($add['status'] === 302, 'Carrinho: inclusão de produto');
@@ -153,6 +156,7 @@ try {
 
     $pixToken=placeOrder('pix_manual');
     $pix=orderByToken($pdo,$pixToken);
+    check((string)$pix['frete']==='8.50' && (string)$pix['total']==='58.40', 'Checkout aplica frete configurado ao total');
     check($pix['status_pagamento']==='pendente' && $pix['status_logistico']==='aguardando_pagamento', 'Pix inicia aguardando confirmação');
     check((int)$pdo->query("SELECT estoque_atual FROM produtos WHERE id=$productId")->fetchColumn()===9, 'Checkout atualiza estoque de forma transacional');
     $track=http('/rastrear.php?token='.urlencode($pixToken));
@@ -171,6 +175,7 @@ try {
     http('/carrinho.php', ['csrf'=>$cardCsrf,'id'=>$productId,'quantity'=>1,'action'=>'add'], 'cardbuyer', false, true);
     $cardToken=placeOrder('debito_entrega','cardbuyer');
     $card=orderByToken($pdo,$cardToken);
+    check((string)$card['frete']==='8.50', 'Checkout do cartão aplica mesmo frete servidor');
     check($card['status_pagamento']==='a_receber_na_entrega' && $card['status_logistico']==='em_separacao', 'Débito na entrega inicia em separação, sem pagamento confirmado');
     $premature=http('/admin/pedidos.php', ['csrf'=>$adminCsrf,'id'=>$card['id'],'acao'=>'confirmar_pagamento'], 'admin', false, true);
     check(str_contains($premature['body'],'só pode ser confirmado após a entrega'), 'Bloqueio: cartão não confirma antes de entregue');
