@@ -18,7 +18,7 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
   if($acao==='confirmar_pagamento') {
     if(!in_array($order['status_pagamento'],['pendente','a_receber_na_entrega'],true)||$order['status_logistico']==='cancelado')throw new InvalidArgumentException('Confirmação indisponível para este pedido.');
     if($order['status_pagamento']==='a_receber_na_entrega' && $order['status_logistico']!=='entregue')throw new InvalidArgumentException('Pagamento com cartão só pode ser confirmado após a entrega.');
-    $update=$pdo->prepare("UPDATE pedidos SET status_pagamento='confirmado' WHERE id=?");
+    $update=$pdo->prepare("UPDATE pedidos SET status_pagamento='confirmado', pago_em=NOW() WHERE id=?");
     $update->execute([$id]);
     if($order['metodo_pagamento']==='pix_manual' && $order['status_logistico']==='aguardando_pagamento') {
       $log=$pdo->prepare("UPDATE pedidos SET status_logistico='em_separacao' WHERE id=?");$log->execute([$id]);
@@ -26,6 +26,33 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
       $history->execute([$id,$_SESSION['user_id']??null]);
     }
     $success='Pagamento confirmado manualmente.';
+  } elseif($acao==='registrar_estorno') {
+    // Esta ação NÃO envia dinheiro: registrar somente após comprovar o estorno externo.
+    if($order['status_pagamento']!=='confirmado'){
+      throw new InvalidArgumentException('Somente pagamento confirmado pode ser estornado.');
+    }
+    if(!in_array($order['status_logistico'],['aguardando_pagamento','em_separacao','embalado'],true)){
+      throw new InvalidArgumentException('Pedido despachado ou entregue exige fluxo de devolução separado.');
+    }
+    $note=trim((string)($_POST['observacao_estorno']??''));
+    if(mb_strlen($note)<10 || mb_strlen($note)>500){
+      throw new InvalidArgumentException('Informe justificativa de 10 a 500 caracteres e referência da devolução.');
+    }
+    // O lock do pedido impede estorno concorrente e restauração duplicada de estoque.
+    $items=$pdo->prepare('SELECT produto_id,quantidade FROM pedido_itens WHERE pedido_id=? ORDER BY produto_id FOR UPDATE');
+    $items->execute([$id]);
+    $inc=$pdo->prepare('UPDATE produtos SET estoque_atual=estoque_atual+? WHERE id=?');
+    $mov=$pdo->prepare("INSERT INTO movimentacoes_estoque(produto_id,pedido_id,tipo,quantidade) VALUES (?,?,'estorno_venda',?)");
+    foreach($items->fetchAll() as $item){
+      $inc->execute([(int)$item['quantidade'],(int)$item['produto_id']]);
+      if($inc->rowCount()!==1)throw new RuntimeException('Produto de pedido não localizado.');
+      $mov->execute([(int)$item['produto_id'],$id,(int)$item['quantidade']]);
+    }
+    $update=$pdo->prepare("UPDATE pedidos SET status_pagamento='estornado',status_logistico='cancelado',estornado_em=NOW(),observacao_estorno=? WHERE id=?");
+    $update->execute([$note,$id]);
+    $hist=$pdo->prepare('INSERT INTO pedido_historico(pedido_id,status_anterior,status_novo,usuario_id) VALUES(?,?,?,?)');
+    $hist->execute([$id,$order['status_logistico'],'cancelado',$_SESSION['user_id']??null]);
+    $success='Estorno previamente realizado fora do sistema foi registrado e estoque restaurado.';
   } elseif($acao==='logistica') {
     $to=(string)($_POST['status']??'');
     $from=$order['status_logistico'];
@@ -51,13 +78,23 @@ try{$orders=db()->query('SELECT p.id,p.token_rastreio,p.total,p.status_pagamento
 catch(Throwable $ex){error_log($ex->getMessage());$orders=[];$error='Pedidos indisponíveis.';}
 ?><!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pedidos — VittaPet</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"><link href="../assets/css/tokens.css" rel="stylesheet"></head><body>
 <nav class="navbar border-bottom"><div class="container"><a class="navbar-brand" href="produtos.php">VittaPet Store</a><div class="d-flex gap-3"><a href="produtos.php">Produtos</a><a href="dashboard.php">Dashboard</a><a href="financeiro.php">Financeiro</a><form method="post" action="../logout.php" class="d-inline"><input type="hidden" name="csrf" value="<?=e(csrf())?>"><button type="submit" class="btn btn-link p-0">Sair</button></form></div></div></nav>
-<main class="container py-4"><h1 class="h3">Pedidos da loja</h1><p class="text-muted">Pagamentos confirmados manualmente. Um pedido pago não pode ser cancelado sem o procedimento de estorno.</p>
+<main class="container py-4"><h1 class="h3">Pedidos da loja</h1><p class="text-muted">Confirme o recebimento real dos pagamentos. O registro de estorno exige que o dinheiro já tenha sido devolvido por meio externo; o sistema não processa transferências nem reembolsos automaticamente.</p>
 <?php if($error):?><div class="alert alert-danger"><?=e($error)?></div><?php endif;?>
 <?php if($success):?><div class="alert alert-success"><?=e($success)?></div><?php endif;?>
 <div class="table-responsive"><table class="table table-hover align-middle"><thead><tr><th>Pedido</th><th>Cliente</th><th>Total</th><th>Pagamento</th><th>Entrega</th><th>Ações</th></tr></thead><tbody>
 <?php foreach($orders as $o):?><tr><td><span class="small"><?=e($o['token_rastreio'])?></span><div class="text-muted small"><?=e($o['created_at'])?></div></td><td><?=e($o['cliente'])?></td><td><?=money($o['total'])?></td><td><?=e($o['status_pagamento']==='a_receber_na_entrega'?'A receber na entrega':($o['status_pagamento']==='pendente'?'Aguardando Pix':$o['status_pagamento']))?><div class="small text-muted"><?=e(match($o['metodo_pagamento']){'pix_manual'=>'Pix','debito_entrega'=>'Débito','credito_entrega'=>'Crédito',default=>'Pagamento na entrega'})?></div></td><td><?=e($labels[$o['status_logistico']]??$o['status_logistico'])?></td><td>
 <?php if((($o['status_pagamento']==='pendente') || ($o['status_pagamento']==='a_receber_na_entrega' && $o['status_logistico']==='entregue')) && $o['status_logistico']!=='cancelado'):?>
 <form method="post" class="mb-2" onsubmit="return confirm('Confirma que o valor foi efetivamente recebido?')"><input type="hidden" name="csrf" value="<?=e(csrf())?>"><input type="hidden" name="id" value="<?=(int)$o['id']?>"><input type="hidden" name="acao" value="confirmar_pagamento"><button class="btn btn-sm btn-outline-primary">Confirmar pagamento</button></form><?php endif;?>
+<?php if($o['status_pagamento']==='confirmado' && in_array($o['status_logistico'],['aguardando_pagamento','em_separacao','embalado'],true)):?>
+<form method="post" class="mt-2" onsubmit="return confirm('Você já devolveu o valor ao cliente fora do sistema e deseja registrar o estorno? Esta ação cancela o pedido e restaura o estoque.')">
+<input type="hidden" name="csrf" value="<?=e(csrf())?>">
+<input type="hidden" name="id" value="<?=(int)$o['id']?>">
+<input type="hidden" name="acao" value="registrar_estorno">
+<label class="small" for="estorno-<?=(int)$o['id']?>">Justificativa e referência do estorno</label>
+<textarea class="form-control form-control-sm mb-1" id="estorno-<?=(int)$o['id']?>" name="observacao_estorno" minlength="10" maxlength="500" required></textarea>
+<button type="submit" class="btn btn-sm btn-outline-danger">Registrar estorno já realizado</button>
+</form>
+<?php endif;?>
 <?php if(!empty($next[$o['status_logistico']])):?>
 <form method="post" class="d-flex gap-1"><input type="hidden" name="csrf" value="<?=e(csrf())?>"><input type="hidden" name="id" value="<?=(int)$o['id']?>"><input type="hidden" name="acao" value="logistica"><select class="form-select form-select-sm" aria-label="Novo status" name="status">
 <?php foreach($next[$o['status_logistico']] as $to):?>
