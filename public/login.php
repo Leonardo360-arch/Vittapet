@@ -14,14 +14,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $ip = (string)($_SERVER['REMOTE_ADDR'] ?? 'unknown');
         $ipHash = hash('sha256', $ip);
         $identityHash = hash('sha256', $email);
-        $since = date('Y-m-d H:i:s', time() - 15 * 60);
-
-        $counter = $pdo->prepare('SELECT COUNT(*) FROM login_tentativas WHERE ip_hash=? AND criado_em>=?');
-        $counter->execute([$ipHash, $since]);
+        $counter = $pdo->prepare('SELECT COUNT(*) FROM login_tentativas WHERE ip_hash=? AND criado_em >= (NOW() - INTERVAL 15 MINUTE)');
+        $counter->execute([$ipHash]);
         $byIp = (int)$counter->fetchColumn();
 
-        $counter = $pdo->prepare('SELECT COUNT(*) FROM login_tentativas WHERE ip_hash=? AND identificador_hash=? AND criado_em>=?');
-        $counter->execute([$ipHash, $identityHash, $since]);
+        $counter = $pdo->prepare('SELECT COUNT(*) FROM login_tentativas WHERE ip_hash=? AND identificador_hash=? AND criado_em >= (NOW() - INTERVAL 15 MINUTE)');
+        $counter->execute([$ipHash, $identityHash]);
         $byLogin = (int)$counter->fetchColumn();
 
         if ($byIp >= 30 || $byLogin >= 8) {
