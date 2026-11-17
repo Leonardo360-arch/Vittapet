@@ -84,3 +84,7 @@
 @media(max-width:768px){.store-nav{gap:.65rem}.store-brand-text{font-size:1.35rem}.store-brand-logo{width:37px;height:37px}.store-brand-logo svg{width:32px;height:32px}.store-navlinks{order:2;width:auto;border:0;padding:0;gap:.65rem}.store-navlinks a{font-size:.73rem}.store-header-search{order:4}.store-category-nav-inner{min-height:52px}.store-hero h1{font-size:clamp(2rem,8vw,3rem)}}
 @media(max-width:460px){.store-navlinks{order:5;width:100%;justify-content:space-between}.store-cart-link{padding:.6rem .7rem}.store-nav-actions{margin-left:auto}.store-header-search{order:4}.store-topline .container{font-size:.68rem;line-height:1.4;padding:.45rem .75rem}.store-hero{border-radius:15px}.store-hero-inner{padding:1.6rem 1.3rem}}
 @media(prefers-reduced-motion:reduce){.store-header-search button,.store-category-nav-inner a,.store-product-media img{transition:none!important;transform:none!important}}
+
+/* Keep brand name on one line and its descriptive subtitle beneath. */
+.store-brand-text{display:block;line-height:1.06}
+.store-brand-text small{display:block}
