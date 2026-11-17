@@ -15,7 +15,7 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
    }
    $values['cep']=preg_replace('/\D/','',$values['cep']);
    $values['uf']=strtoupper($values['uf']);
-   $values['whatsapp']=preg_replace('/\\D/','',(string)($_POST['whatsapp']??''));
+   $values['whatsapp']=preg_replace('/\D/','',(string)($_POST['whatsapp']??''));
    if($values['whatsapp']!=='' && !preg_match('/^55[1-9][0-9]{9,10}$/D',$values['whatsapp'])) throw new InvalidArgumentException('Informe o WhatsApp com DDI 55, DDD e número.');
    if($values['nome']==='')throw new InvalidArgumentException('Informe o nome da loja.');
    if($values['cep']!=='' && !preg_match('/^\d{8}$/D',$values['cep']))throw new InvalidArgumentException('CEP deve possuir oito números.');
