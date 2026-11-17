@@ -3,7 +3,7 @@
 1. Configure PHP 8 com extensões PDO MySQL e mbstring, MySQL e servidor web.
 2. Crie o banco `vittapet_db` com UTF8MB4 e importe `database/migrations/001_store_base.sql` e, em seguida, `database/migrations/002_pedidos.sql` e `database/migrations/003_financeiro.sql`, depois `database/migrations/004_localizacao_loja.sql` e por último `database/migrations/005_pagamentos_whatsapp.sql` e por último `database/migrations/006_login_tentativas.sql`.
 3. Copie `config/local.example.php` para `config/local.php` e configure credenciais **localmente**. Não commitar `local.php`.
-4. Crie o usuário administrador **por procedimento local seguro**, gerando hash com `php -r "echo password_hash('SENHA_FORTE', PASSWORD_DEFAULT), PHP_EOL;"` e inserindo o hash no campo `senha_hash` com SQL parametrizado ou ferramenta local. Não versionar senha.
+4. Defina variáveis de ambiente locais `ADMIN_EMAIL`, `ADMIN_NAME` e `ADMIN_PASSWORD` (senha com no mínimo 12 caracteres, sem expor no Git ou histórico do terminal) e execute `php scripts/create_admin.php` para provisionar o login. Em ambiente de hospedagem sem CLI, faça o provisionamento em banco de teste antes de exportar o hash e nunca suba o script para `htdocs`.
 5. Em desenvolvimento, execute `php -S localhost:8000 -t public` a partir da raiz do projeto.
 6. Acesse `/login.php` para administrar produtos e `/index.php` para visualizar o catálogo.
 
@@ -19,3 +19,6 @@ Na administração abra Configurações e informe o WhatsApp comercial no format
 
 ## Segurança e controle de acesso
 A migration 006 é obrigatória para login e rastreio: cria tabelas de tentativas e controle de consultas. Após instalar, teste login com hash gerado localmente, bloqueio de tentativas e logout por POST. Execute os testes da [Revisão QA 05](QA_REVISAO_05.md). Sem a migration 006, login e rastreio não funcionarão corretamente.
+
+## Integração automatizada
+A suíte `tests/integration_http.php` utiliza MySQL 8 isolado e servidor `php -S` acionados por `.github/workflows/php-quality.yml` em Pull Requests. Usa exclusivamente credenciais e produtos fictícios no CI; consulte [matriz de testes](MATRIZ_TESTES_V1.md). **Isso não testa InfinityFree nem APIs externas automaticamente.**
