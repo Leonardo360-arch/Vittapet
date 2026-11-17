@@ -9,7 +9,7 @@
 3. **Loja:** carrinho persistente em sessão, checkout, pedidos com itens e valores congelados, reserva/baixa de estoque consistente.
 4. **Rastreio:** token forte e histórico dos estados aguardando pagamento, em separação, embalado, saiu para entrega, entregue, cancelado.
 5. **Administração:** dashboard de pedidos/produtos, alteração de status e relatórios de receita confirmada, custo e despesas; indicar métricas estimadas.
-6. **Integrações:** ViaCEP e Dog CEO (JSON), com falhas tratadas.
+6. **Integrações:** ViaCEP e serviço de geocodificação de endereço (JSON), com mapa Leaflet/OpenStreetMap, com falhas tratadas.
 7. **Qualidade e entrega:** testes CRUD e compra ponta a ponta, revisão de segurança, deploy InfinityFree, link público e documentação para Teams.
 
 **Prioridade de avaliação:** primeiro comprovar CRUD, 2 APIs, originalidade, hospedagem e documentação. Carrinho, pedidos e financeiro aumentam o escopo e só podem ser considerados concluídos após testes.
@@ -54,3 +54,11 @@ Nunca registrar etapa como concluída sem evidência de código, testes, integra
 - Evitar condições de corrida em cliques rápidos: bloquear/desfazer estados pendentes e sincronizar com resposta do servidor. Não permitir quantidades negativas nem maiores que estoque.
 - Botão de remover item explícito e confirmação apenas quando necessária; totais sempre derivados da lista atual de itens.
 - Testes: adicionar, remover último item, aumentar/diminuir quantidade, atingir limite do estoque, calcular frete/desconto, falha de API e recálculo no checkout.
+
+## Localização da loja (revisão da integração de APIs)
+- **API 1: ViaCEP** para consulta de CEP e autopreenchimento do endereço do comprador no checkout, com tratamento de CEP inválido, indisponibilidade e preenchimento manual.
+- **API 2: geocodificação de endereço** para obter latitude/longitude da loja em resposta JSON, preferencialmente na configuração administrativa, não a cada visita da homepage. Provedor inicialmente avaliado: Nominatim/OpenStreetMap, respeitando limite de uso, identificação da aplicação, cache e proibição de autocomplete no endpoint público.
+- **Mapa:** Leaflet.js com tiles compatíveis com OpenStreetMap e atribuição obrigatória. Leaflet é biblioteca de mapa, não endpoint JSON; comprovar explicitamente o consumo da API de geocodificação na avaliação de DW2.
+- **Rodapé/homepage:** mapa compacto responsivo (altura aproximada de 240–320 px), marcador da loja, nome, endereço completo e botão de rotas (Google Maps/Waze). O administrador poderá editar endereço, latitude e longitude na configuração da loja; nenhum endereço fictício será exibido como localização real.
+- O mapa utiliza coordenadas persistidas em `configuracoes_loja` ou configuração equivalente, evitando geocodificação em toda abertura de página. Em caso de falha do mapa, mostrar endereço textual e link para rotas; evitar coleta da localização do visitante sem necessidade e consentimento do navegador.
+- Critérios de aceite: CEP retorna JSON e preenche campos; a geocodificação retorna coordenadas verificáveis em JSON e elas são usadas para o marcador; visualização mobile, atribuição de mapa, links de rota e fallback testados.
