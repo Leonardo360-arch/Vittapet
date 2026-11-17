@@ -32,7 +32,17 @@ try {
         $categoryQuery->execute([$category]);
         $categoryId = $categoryQuery->fetchColumn();
         if (!$categoryId) {
-            throw new RuntimeException("Categoria de exemplo ausente: $category");
+            // Uma instalação vazia pode não conter os dados de referência.
+            // Criar a categoria SOMENTE para este seed local, sem apagar cadastros.
+            $createCategory = $pdo->prepare(
+                'INSERT IGNORE INTO categorias(nome,descricao,ativo) VALUES(?, ?, 1)'
+            );
+            $createCategory->execute([$category, 'Categoria de demonstração local']);
+            $categoryQuery->execute([$category]);
+            $categoryId = $categoryQuery->fetchColumn();
+            if (!$categoryId) {
+                throw new RuntimeException("Categoria indisponível após inicialização: $category");
+            }
         }
         $insert->execute([$categoryId,$name,$description,$price,$cost,$stock]);
     }
