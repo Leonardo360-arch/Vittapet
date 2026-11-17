@@ -31,12 +31,14 @@ O dashboard apresentará dados do MySQL, com receita efetivamente confirmada, de
 - [Roadmap e etapas de desenvolvimento](docs/ROADMAP.md)
 - [Backlog da versão 2.0](docs/VERSAO_2_0_BACKLOG.md)
 - [Histórico e controle de versões](CHANGELOG.md)
+- [QA — Revisão técnica 01](docs/QA_REVISAO_01.md)
+- [Instalação local](docs/INSTALACAO.md)
 
 ## Arquitetura planejada
 Monólito modular PHP com PDO/MySQL e camadas de controllers, services e repositories; migrations versionadas, testes, configuração privada fora do webroot e apenas `public/` acessível pelo servidor. A configuração de hospedagem InfinityFree deve ser testada sem expor segredos.
 
 ## Controle de progresso
-**Situação em 17/11/2026:** escopo e documentos adicionados na branch `develop`. **Ainda não existem implementação, testes validados ou publicação concluída.** A branch `main` será atualizada mediante revisão e aprovação da entrega, sem confundir documentação aprovada com release funcional.
+**Situação em 17/11/2026:** fundação, CRUD, carrinho, checkout inicial, pedidos e rastreio **enviados para a branch `develop`**. **Ainda não foram validados em execução com MySQL e não há publicação concluída.** Consulte a revisão de QA para bloqueadores. A branch `main` será atualizada mediante revisão e aprovação da entrega, sem confundir documentação aprovada com release funcional.
 
 ## Desenvolvimento e colaboração
 Evitar segredos no Git, escrever commits explicativos, revisar PRs antes de integrar na `main`, e atualizar [CHANGELOG.md](CHANGELOG.md) a cada mudança significativa. Novos recursos devem preservar a compatibilidade com os módulos já implementados.
