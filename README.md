@@ -27,6 +27,7 @@ O dashboard apresentará dados do MySQL, com receita efetivamente confirmada, de
 
 ## Documentação oficial
 - [Especificação completa da v1.0](docs/VERSAO_1_0.md)
+- [Regra de frete fixa e testes](docs/FRETE_V1.md)
 - [Documentação técnica detalhada da arquitetura](docs/ARQUITETURA_TECNICA_V1.md)
 - [Matriz de 42 cenários de QA](docs/MATRIZ_TESTES_V1.md)
 - [Critérios formais de homologação](docs/HOMOLOGACAO_V1.md)
