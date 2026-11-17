@@ -15,7 +15,7 @@ A versão gratuita tem `htdocs` como raiz web fixa e restringe o uso de arquivos
   deploy/               # orientações; preferencialmente NAO subir em producao
 ```
 
-**Recomendação:** copiar para `htdocs` somente `.htaccess`, `public/`, `config/`, `includes/` e dependências PHP realmente utilizadas. Não enviar `docs/`, `database/`, `.git/`, testes, dumps, logs, backups ou documentos locais.
+**Empacotamento recomendado (somente após homologação):** executar `php scripts/build_deploy.php` na raiz do projeto e usar a estrutura gerada em `build/htdocs/`. Ela contém apenas `.htaccess`, `public/`, `includes/`, `config/database.php` e `config/.htaccess`; **não contém** `config/local.php` nem documentos/migrations/testes/scripts. Configurar credenciais apenas no servidor, fora do Git e do pacote. Não executar FTP antes dos testes de segurança.
 
 ## Passo a passo
 1. Criar site/conta InfinityFree e habilitar HTTPS/SSL.
@@ -32,8 +32,8 @@ A versão gratuita tem `htdocs` como raiz web fixa e restringe o uso de arquivos
 ## Limitações e cuidados
 - InfinityFree não oferece cron jobs na hospedagem gratuita; fila de e-mail e agendamento automático ficam para arquitetura futura.
 - Serviços externos consultados no frontend (ViaCEP e geocodificação conforme implementação) precisam respeitar CORS e políticas de uso. Nunca pressupor que chamadas externas via PHP estarão livres de restrições.
-- Não declarar frete grátis real: checkout atual tem R$ 0,00 **demonstrativo**. Não vender para clientes reais sem política de frete implementada.
-- Admin precisa de rate limit de login e o rastreio requer limite de tentativas antes de publicação real.
+- O checkout exige frete fixo explícito e cobertura por CEP; definir área real de atendimento e validar casos excepcionais antes da venda.
+- Login e rastreio têm limitação persistente desde a migration 006; testar os limites no host e definir retenção de logs de tentativa.
 - Configurar upload de arquivos, permissões, logs, backup e restauração conforme recursos disponíveis; não deixar dumps nem segredos sob webroot público.
 - A instalação e funcionamento no InfinityFree ainda exigem teste com dados da conta. Este documento prepara a implantação, **não significa que ela tenha sido executada**.
 
