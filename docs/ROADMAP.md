@@ -46,3 +46,11 @@ Não usar valores monetários em float; DECIMAL(10,2). Pedido, itens e estoque e
 
 ## Critério de conclusão
 Nunca registrar etapa como concluída sem evidência de código, testes, integração e documentação; registrar pendências e falhas de deploy com transparência.
+
+## Requisito UX obrigatório — carrinho reativo e controles slim
+- Ao adicionar/remover produto, ou editar sua quantidade, recalcular imediatamente subtotal por item, subtotal geral, descontos, frete e total sem botão "Atualizar carrinho" e sem recarregar a página.
+- Utilizar interface minimalista, controles compactos com ícones vetoriais SVG/Lucide (sem símbolos improvisados), espaçamento consistente, responsividade e estados de carregamento/erro acessíveis.
+- A interação ocorre no JavaScript, mas o servidor PHP recalcula preços, descontos, impostos/frete aplicáveis e estoque com valores confiáveis do banco antes de fechar o pedido; jamais confiar no total enviado pelo cliente.
+- Evitar condições de corrida em cliques rápidos: bloquear/desfazer estados pendentes e sincronizar com resposta do servidor. Não permitir quantidades negativas nem maiores que estoque.
+- Botão de remover item explícito e confirmação apenas quando necessária; totais sempre derivados da lista atual de itens.
+- Testes: adicionar, remover último item, aumentar/diminuir quantidade, atingir limite do estoque, calcular frete/desconto, falha de API e recálculo no checkout.
