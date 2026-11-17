@@ -18,7 +18,7 @@ try {
 <main class="container">
 <section class="hero my-4 p-4 p-lg-5"><div class="row align-items-center"><div class="col-lg-8"><p class="text-uppercase fw-bold small" style="color:var(--color-primary)">VittaPet Store</p>
 <h1 class="display-5 fw-bold">O cuidado começa nas pequenas escolhas.</h1><p class="lead">Alimentação, diversão e acessórios para seu melhor amigo.</p>
-<a href="#produtos" class="btn btn-primary px-4 py-2 control-slim">Explorar produtos</a></div><div class="col-lg-4 text-center display-1" aria-hidden="true">🐾</div></div></section>
+<a href="#produtos" class="btn btn-primary px-4 py-2 control-slim">Explorar produtos</a></div><div class="col-lg-4 text-center"><div class="p-5 rounded-4 bg-white fw-bold" style="color:var(--color-primary);font-family:Poppins,sans-serif;font-size:2.5rem">VittaPet</div></div></div></section>
 <section id="produtos" class="py-4"><div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4"><h2 class="h3 fw-bold mb-0">Nossa loja</h2>
 <select id="filtro" class="form-select control-slim" style="max-width:220px"><option value="">Todas as categorias</option><?php foreach($categorias as $cat): ?><option value="<?=e($cat['nome'])?>"><?=e($cat['nome'])?></option><?php endforeach; ?></select></div>
 <?php if ($erro): ?><div class="alert alert-warning"><?=e($erro)?></div><?php endif; ?>
@@ -27,7 +27,7 @@ try {
 <?php if ($p['imagem_path']): ?><img src="<?=e($p['imagem_path'])?>" alt="<?=e($p['nome'])?>" loading="lazy" style="max-width:100%;max-height:165px;object-fit:contain"><?php else: ?><span class="text-muted">VittaPet</span><?php endif; ?></div>
 <div class="card-body d-flex flex-column"><small class="text-muted"><?=e($p['categoria'])?></small><h3 class="h6 fw-semibold mt-1"><?=e($p['nome'])?></h3>
 <p class="text-muted small flex-grow-1"><?=e(mb_strimwidth((string)($p['descricao']??''),0,90,'…'))?></p>
-<div class="price mb-2"><?=money($p['preco_venda'])?></div><form method="post" action="carrinho.php"><input type="hidden" name="csrf" value="<?=e(csrf())?>"><input type="hidden" name="id" value="<?=intval($p['id'])?>"><input type="hidden" name="quantity" value="1"><button class="btn btn-primary btn-sm control-slim w-100" type="submit" <?=intval($p['estoque_atual'])===0?'disabled':''?>><?=intval($p['estoque_atual'])===0?'Esgotado':'Adicionar ao carrinho'?></button></form></div></article></div><?php endforeach; ?>
+<div class="price mb-2"><?=money($p['preco_venda'])?></div><form method="post" action="carrinho.php"><input type="hidden" name="csrf" value="<?=e(csrf())?>"><input type="hidden" name="id" value="<?=intval($p['id'])?>"><input type="hidden" name="quantity" value="1"><input type="hidden" name="action" value="add"><button class="btn btn-primary btn-sm control-slim w-100" type="submit" <?=intval($p['estoque_atual'])===0?'disabled':''?>><?=intval($p['estoque_atual'])===0?'Esgotado':'Adicionar ao carrinho'?></button></form></div></article></div><?php endforeach; ?>
 <?php if(!$produtos): ?><p class="text-muted">Nenhum produto disponível no momento.</p><?php endif;?></div></section>
 </main>
 <footer class="border-top mt-5 py-4"><div class="container d-flex justify-content-between flex-wrap gap-2"><span>© VittaPet Store — Projeto acadêmico</span><span>Localização e mapa: próxima etapa</span></div></footer>
