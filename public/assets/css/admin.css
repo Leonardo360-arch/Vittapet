@@ -1,0 +1,71 @@
+/* VittaPet — dashboard administrativo. Sem bibliotecas JS externas. */
+:root { --admin-ink:#182e35; --admin-muted:#566b72; --admin-line:#deebea; --admin-soft:#f3f8f7; }
+body.admin-ui { background:#f7faf9; color:var(--admin-ink); }
+.admin-skip { position:absolute; left:-9999px; top:0; z-index:30; background:white; padding:.8rem; }
+.admin-skip:focus { left:.75rem; top:.75rem; }
+.admin-header { background:white; border-bottom:1px solid var(--admin-line); }
+.admin-header-inner { max-width:1440px; margin:0 auto; padding:1rem 1.5rem; display:flex; align-items:center; flex-wrap:wrap; gap:1.1rem 1.5rem; }
+.admin-brand { display:flex; align-items:center; gap:.6rem; color:var(--admin-ink); text-decoration:none; font-family:Poppins,system-ui,sans-serif; font-weight:700; white-space:nowrap; }
+.admin-brand:hover {color:var(--color-primary);}
+.admin-brand-mark { background:var(--color-primary); color:white; border-radius:12px; display:grid; place-items:center; width:40px; height:40px; font-size:1.3rem; }
+.admin-brand-label {display:flex; flex-direction:column;line-height:1.1;}
+.admin-brand-label small {font:600 .63rem Inter,system-ui,sans-serif;letter-spacing:.15em;color:var(--admin-muted);margin-top:.3rem;}
+.admin-navigation { display:flex; flex:1; gap:.25rem; flex-wrap:wrap; align-items:center; }
+.admin-nav-link {text-decoration:none;color:var(--admin-muted);font-weight:600;font-size:.9rem;border-radius:10px;padding:.65rem .8rem;}
+.admin-nav-link:hover,.admin-nav-link.is-active {color:var(--color-primary);background:#e7f5f2;}
+.admin-account {display:flex;align-items:center;gap:.8rem;}
+.admin-view-store {text-decoration:none;font-size:.875rem;font-weight:600;}
+.admin-logout {border:1px solid var(--admin-line);border-radius:9px;padding:.5rem .85rem;background:white;color:var(--admin-ink);font-weight:600;}
+.admin-logout:hover {background:var(--admin-soft);}
+.admin-shell {max-width:1440px;margin:0 auto;padding:2rem 1.5rem 3rem;}
+.admin-eyebrow {font-size:.72rem;text-transform:uppercase;letter-spacing:.14em;font-weight:800;color:var(--color-primary);}
+.admin-title {font-size:clamp(1.65rem,2.5vw,2.2rem);font-weight:700;letter-spacing:-.035em;margin:.35rem 0;}
+.admin-subtitle {color:var(--admin-muted);margin-bottom:0;}
+.admin-filter-panel {display:flex;align-items:end;flex-wrap:wrap;gap:.65rem;}
+.admin-filter-panel label {display:flex;flex-direction:column;gap:.25rem;font-size:.78rem;font-weight:650;color:var(--admin-muted);}
+.admin-filter-panel input {min-width:140px;}
+.admin-filter-panel .btn {min-height:38px;}
+.admin-presets {display:flex;align-items:center;gap:.35rem;flex-wrap:wrap;}
+.admin-presets a {padding:.5rem .7rem;border-radius:9px;text-decoration:none;font-size:.82rem;font-weight:650;color:var(--color-primary);background:#e9f4f1;}
+.admin-presets a:hover {background:#d7ece7;}
+.admin-metric {padding:1.2rem;min-height:145px;background:white;border:1px solid var(--admin-line);border-radius:18px;box-shadow:0 5px 20px rgba(13,56,53,.035);position:relative;}
+.admin-metric.is-primary {background:var(--color-primary);color:white;border-color:var(--color-primary);}
+.admin-metric.is-primary .admin-metric-label,.admin-metric.is-primary .admin-metric-hint {color:#e2f6f1;}
+.admin-metric.is-warning {border-left:4px solid #c76a23;}
+.admin-metric-label {font-size:.86rem;color:var(--admin-muted);font-weight:600;line-height:1.35;padding-right:2rem;}
+.admin-metric-value {font-family:Poppins,system-ui,sans-serif;font-size:clamp(1.3rem,2vw,1.65rem);font-weight:700;margin:.8rem 0 .3rem;overflow-wrap:anywhere;}
+.admin-metric-hint {font-size:.74rem;color:var(--admin-muted);margin:0;}
+.admin-metric-icon {position:absolute;top:1.05rem;right:1.15rem;opacity:.75;font-size:1.1rem;font-weight:800;}
+.admin-surface {background:white;border:1px solid var(--admin-line);border-radius:18px;padding:1.25rem;height:100%;}
+.admin-section-title {font-size:1.1rem;font-weight:700;margin:0;}
+.admin-section-help {font-size:.82rem;color:var(--admin-muted);margin:.4rem 0 1.1rem;}
+.admin-empty {border:1px dashed #c5dcda;border-radius:14px;padding:2rem 1.2rem;text-align:center;background:var(--admin-soft);}
+.admin-empty strong {display:block;font-size:.98rem;}
+.admin-empty p {margin:.5rem auto 1rem;color:var(--admin-muted);max-width:35ch;font-size:.9rem;}
+.admin-chart {display:flex;flex-direction:column;gap:.7rem;padding:.6rem 0;}
+.admin-chart-row {display:grid;grid-template-columns:6.5rem minmax(0,1fr) 6.7rem;gap:.75rem;align-items:center;}
+.admin-chart-label,.admin-chart-value {font-size:.8rem;font-weight:600;color:var(--admin-muted);}
+.admin-chart-value {text-align:right;color:var(--admin-ink);}
+.admin-chart-track {background:#ebf4f1;border-radius:8px;height:15px;overflow:hidden;}
+.admin-chart-bar {height:100%;border-radius:8px;background:var(--color-primary);min-width:0;}
+.admin-table-details {margin-top:1.1rem;}
+.admin-table-details summary {cursor:pointer;color:var(--color-primary);font-size:.9rem;font-weight:650;}
+.admin-table-details .table {margin-top:.7rem;}
+.admin-best-seller {display:flex;justify-content:space-between;gap:1rem;padding:.85rem 0;border-bottom:1px solid var(--admin-line);font-size:.9rem;}
+.admin-best-seller:last-child {border-bottom:0;}
+.admin-best-seller strong {white-space:nowrap;}
+.admin-note {font-size:.78rem;color:var(--admin-muted);line-height:1.6;}
+:focus-visible {outline:3px solid #d98639 !important;outline-offset:3px;}
+@media(max-width:760px) {
+  .admin-header-inner {padding:.85rem 1rem;gap:.8rem;}
+  .admin-navigation {order:3;flex-basis:100%;flex-wrap:nowrap;overflow-x:auto;padding-bottom:.25rem;}
+  .admin-nav-link {white-space:nowrap;}
+  .admin-account {margin-left:auto;}
+  .admin-shell {padding:1.2rem .9rem 2.5rem;}
+  .admin-filter-panel {width:100%;}
+  .admin-filter-panel label {flex:1;min-width:125px;}
+  .admin-filter-panel input {width:100%;min-width:0;}
+  .admin-chart-row {grid-template-columns:4.5rem minmax(0,1fr) 5.2rem;gap:.5rem;}
+  .admin-chart-value,.admin-chart-label {font-size:.71rem;}
+}
+@media(prefers-reduced-motion:reduce) { *,*::before,*::after {scroll-behavior:auto!important;transition:none!important;} }

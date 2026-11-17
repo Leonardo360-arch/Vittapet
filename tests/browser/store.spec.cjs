@@ -104,3 +104,23 @@ test('rastreio Pix usa WhatsApp comercial, valor e código sem enviar mensagem s
   expect(decodeURIComponent(href)).toContain(pixToken);
   expect(decodeURIComponent(href)).toContain('R$ ');
 });
+
+
+test('dashboard administrativo mantém KPIs, navegação e responsividade', async ({page}) => {
+  await loginAdmin(page);
+  await expect(page.getByRole('heading', {name:'Visão geral'})).toBeVisible();
+  await expect(page.locator('.admin-metric')).toHaveCount(7);
+  await expect(page.getByRole('navigation',{name:'Navegação administrativa'})).toBeVisible();
+  await expect(page.getByRole('link',{name:'Visão geral'})).toHaveAttribute('aria-current','page');
+  await expect(page.getByRole('link',{name:'7 dias'})).toHaveAttribute('href',/inicio=.*fim=/);
+  await expect(page.getByRole('button',{name:'Filtrar'})).toBeVisible();
+  await expect(page.locator('#inicio')).toHaveAttribute('type','date');
+  await expect(page.locator('#fim')).toHaveAttribute('type','date');
+  await expect(page.locator('.admin-surface')).toHaveCount(2);
+  await expect.poll(async () => page.evaluate(
+    () => document.documentElement.scrollWidth <= window.innerWidth + 2
+  )).toBe(true);
+  await page.getByRole('link',{name:'7 dias'}).click();
+  await expect(page).toHaveURL(/inicio=.*fim=/);
+  await expect(page.getByRole('heading',{name:'Visão geral'})).toBeVisible();
+});
