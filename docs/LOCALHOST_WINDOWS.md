@@ -90,3 +90,28 @@ Não rode simultaneamente PHP/XAMPP e Docker na mesma porta; escolha um método.
 
 ## 9. Escopo de segurança e hospedagem
 Este ambiente é **somente local** e usa senhas de banco de teste intencionais. Não publicar as portas nem enviá-lo como se fosse ambiente de produção. O pacote de InfinityFree continuará sendo gerado separadamente por `scripts/build_deploy.php`, sem Docker, MySQL local, dumps ou scripts de teste. A implantação pública permanece a última etapa após homologação.
+
+## 10. Recuperar ou criar administrador depois da instalacao
+Se o instalador parou antes de pedir e-mail/senha, **nao e preciso apagar o banco**. Confirme que Docker Desktop esta aberto e execute **uma unica linha** no PowerShell, na raiz do projeto:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\reset_admin_local.ps1
+```
+
+O script confere se `app` e `db` estao executando, pergunta e-mail e nova senha (12 caracteres ou mais) e chama o provisionador CLI existente. Pode criar a primeira conta ou atualizar a conta com o mesmo e-mail, sem mostrar a senha digitada. **Use somente no ambiente local de desenvolvimento.**
+
+Se algum container estiver parado, execute primeiro:
+
+```powershell
+docker compose -f compose.local.yaml up -d
+```
+
+Para diagnosticar falha sem apagar dados:
+
+```powershell
+docker compose -f compose.local.yaml ps
+docker compose -f compose.local.yaml exec -T app php scripts/check_local.php
+docker compose -f compose.local.yaml logs --tail=50 app db
+```
+
+O erro `CommandNotFoundException` geralmente indica texto copiado como comando ou comando inexistente; `NativeCommandError` sozinho nao identifica a causa. Envie **a primeira linha do erro**, nao apenas `FullyQualifiedErrorId`. Nao execute `docker compose down -v`, pois isso exclui o volume de banco.
