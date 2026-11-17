@@ -44,6 +44,7 @@ O dashboard apresenta dados do MySQL, com receita efetivamente confirmada, despe
 - [Revisão de concorrência e organização Git](docs/QA_REVISAO_07.md)
 - [QA 08 — Navegador e integrações JSON](docs/QA_REVISAO_08.md)
 - [QA 09 — Auditoria visual e dashboard](docs/QA_REVISAO_09.md)
+- [QA 10 — Vitrine e produtos de teste](docs/QA_REVISAO_10.md)
 - [Manual operacional v1](docs/MANUAL_OPERACIONAL_V1.md)
 - [Checklist final de entrega](docs/CHECKLIST_ENTREGA_V1.md)
 - [Parecer de liberação](docs/RELATORIO_LIBERACAO_V1.md)
