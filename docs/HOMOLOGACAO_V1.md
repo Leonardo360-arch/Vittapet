@@ -1,6 +1,6 @@
 # Homologação formal — VittaPet Store v1
 
-**Versão candidata atual:** `1.0.0-dev.4`; incremento por correção em `VERSION` e `CHANGELOG.md` antes de cada merge. Ver `docs/VERSIONAMENTO.md`.
+**Versão candidata atual:** `1.0.0-dev.5`; incremento por correção em `VERSION` e `CHANGELOG.md` antes de cada merge. Ver `docs/VERSIONAMENTO.md`.
 
 **Ambiente atual:** código em GitHub, CI PHP/MySQL proposto; **InfinityFree não instalado**. Documento vivo: registrar resultados, não preencher com aprovações hipotéticas.
 
@@ -11,7 +11,7 @@
 | G2 — Banco e fluxo principal | CI MySQL 8/HTTP (CRUD, carrinho, checkout, pagamentos, estoque, sessão) aprovado | **55 asserts aprovados no run 44097037063** |
 | G3 — Testes de borda/segurança | CSRF, login bloqueado, rastreio, concorrência, replay, injeção, auditoria | Pendente |
 | G4 — Qualidade de código | Revisão de responsabilidades, formatação, nomes, duplicações, tratamento de falhas | Parcial; existem páginas monolíticas |
-| G5 — Interface e APIs | Testes mobile/desktop, ViaCEP JSON, Nominatim JSON, mapa e WhatsApp | Pendente |
+| G5 — Interface e APIs | Testes mobile/desktop, ViaCEP JSON, Nominatim JSON, mapa e WhatsApp | Playwright automatizado proposto na dev.5; serviços externos/dispositivos físicos pendentes |
 | G6 — Documentação técnica | Conferência de schema, requisitos, rastreio de testes, procedimentos, riscos e status real | Em elaboração |
 | G7 — Hosting | **Somente após G1–G6:** upload em InfinityFree, importar SQL, HTTP/HTTPS, segredos e rotas | Última etapa — não iniciada |
 
