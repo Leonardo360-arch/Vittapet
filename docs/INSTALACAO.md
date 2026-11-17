@@ -1,7 +1,7 @@
 # Instalação inicial (desenvolvimento)
 
 1. Configure PHP 8 com extensões PDO MySQL e mbstring, MySQL e servidor web.
-2. Crie o banco `vittapet_db` com UTF8MB4 e importe `database/migrations/001_store_base.sql` e, em seguida, `database/migrations/002_pedidos.sql` e `database/migrations/003_financeiro.sql`, depois `database/migrations/004_localizacao_loja.sql` e por último `database/migrations/005_pagamentos_whatsapp.sql` e por último `database/migrations/006_login_tentativas.sql` e `database/migrations/007_frete_fixo.sql` e `database/migrations/008_cobertura_cep.sql` e `database/migrations/009_auditoria_pagamentos.sql`.
+2. Crie o banco `vittapet_db` com UTF8MB4 e importe, **uma vez e na ordem**, todos os arquivos `database/migrations/001_*.sql` até `009_*.sql`. Não reexecutar indiscriminadamente migrations com `ALTER TABLE` em banco já migrado.
 3. Copie `config/local.example.php` para `config/local.php` e configure credenciais **localmente**. Não commitar `local.php`.
 4. Defina variáveis de ambiente locais `ADMIN_EMAIL`, `ADMIN_NAME` e `ADMIN_PASSWORD` (senha com no mínimo 12 caracteres, sem expor no Git ou histórico do terminal) e execute `php scripts/create_admin.php` para provisionar o login. Em ambiente de hospedagem sem CLI, faça o provisionamento em banco de teste antes de exportar o hash e nunca suba o script para `htdocs`.
 5. Em desenvolvimento, execute `php -S localhost:8000 -t public` a partir da raiz do projeto.
@@ -9,7 +9,7 @@
 
 **Hospedagem InfinityFree:** consulte [`deploy/INFINITYFREE.md`](../deploy/INFINITYFREE.md) antes de fazer upload. Apenas arquivos necessários devem entrar em `htdocs` e os bloqueios do `.htaccess` devem ser testados.
 
-**Observações:** CRUD, carrinho, checkout inicial, tabelas de pedidos e painel de acompanhamento estão no código, ainda **sem validação em ambiente executável**. O checkout usa frete demonstrativo zero e pagamento manual; não utilizá-lo para vendas reais. Dashboard financeiro, geocodificação/mapa, testes de implantação e proteção contra abuso continuam pendentes. ViaCEP está implementado no formulário, mas ainda sem testes no navegador. O login ainda não tem proteção completa contra força bruta; configurar rate-limit antes de implantação pública. A URL e o webroot do InfinityFree exigem teste específico para manter `config/` e `src/` não acessíveis.
+**Estado verificado:** código em `main` foi testado no CI com PHP 8.2/MySQL 8 (78 asserções), duas conexões concorrentes e Chromium emulado (15 testes). Há proteção persistente contra tentativas de login e rastreio. ViaCEP e Nominatim foram simulados nos testes de navegador, **não validados em rede real**. Frete e prefixos CEP devem ser configurados; não aceitar vendas reais antes de homologar região e operação. O InfinityFree permanece sem implantação.
 
 ## Configuração do mapa
 No painel administrativo acesse `admin/configuracoes.php`, preencha endereço, clique em **Localizar endereço no mapa**, confira as coordenadas retornadas pela API JSON e salve. Na homepage, o mapa Leaflet aparecerá depois que latitude e longitude forem salvas; sem coordenadas, o endereço informativo permanece e nenhum ponto fictício é exibido.
@@ -21,10 +21,10 @@ Na administração abra Configurações e informe o WhatsApp comercial no format
 A migration 006 é obrigatória para login e rastreio: cria tabelas de tentativas e controle de consultas. Após instalar, teste login com hash gerado localmente, bloqueio de tentativas e logout por POST. Execute os testes da [Revisão QA 05](QA_REVISAO_05.md). Sem a migration 006, login e rastreio não funcionarão corretamente.
 
 ## Integração automatizada
-A suíte `tests/integration_http.php` utiliza MySQL 8 isolado e servidor `php -S` acionados por `.github/workflows/php-quality.yml` em Pull Requests. Usa exclusivamente credenciais e produtos fictícios no CI; consulte [matriz de testes](MATRIZ_TESTES_V1.md). **Isso não testa InfinityFree nem APIs externas automaticamente.**
+A suíte `tests/integration_http.php` utiliza MySQL 8 isolado e servidor `php -S` acionados por `.github/workflows/php-quality.yml` em Pull Requests. Usa exclusivamente credenciais e produtos fictícios no CI; consulte [matriz de testes](MATRIZ_TESTES_V1.md). **Os cenários Playwright simulam APIs externas, sem comprovar disponibilidade/CORS em rede real. Não testa InfinityFree.**
 
 ## Frete da loja
-A partir da migration 007, o checkout exige taxa de frete configurada pelo administrador em `admin/configuracoes.php`. Vazio bloqueia a compra; `0.00` é frete grátis explícito. A taxa fixa não verifica região de entrega. Consulte [Frete v1](FRETE_V1.md).
+A partir da migration 007, o checkout exige taxa de frete configurada pelo administrador em `admin/configuracoes.php`. Vazio bloqueia a compra; `0.00` é frete grátis explícito. O backend também verifica prefixos de CEP autorizados pela migration 008; não confirma se o endereço informado existe. Consulte [Frete v1](FRETE_V1.md).
 
 ## Cobertura de entrega
 Após importar 008, configure no painel a taxa fixa e os prefixos de CEP com cinco dígitos autorizados, como documentado em [Cobertura](COBERTURA_ENTREGA_V1.md). Não há lista padrão de bairros e não é permitido aceitar pedidos enquanto a configuração estiver vazia.
