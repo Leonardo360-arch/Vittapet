@@ -17,6 +17,7 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
   if(!$order)throw new InvalidArgumentException('Pedido não encontrado.');
   if($acao==='confirmar_pagamento') {
     if(!in_array($order['status_pagamento'],['pendente','a_receber_na_entrega'],true)||$order['status_logistico']==='cancelado')throw new InvalidArgumentException('Confirmação indisponível para este pedido.');
+    if($order['status_pagamento']==='a_receber_na_entrega' && $order['status_logistico']!=='entregue')throw new InvalidArgumentException('Pagamento com cartão só pode ser confirmado após a entrega.');
     $update=$pdo->prepare("UPDATE pedidos SET status_pagamento='confirmado' WHERE id=?");
     $update->execute([$id]);
     if($order['metodo_pagamento']==='pix_manual' && $order['status_logistico']==='aguardando_pagamento') {
@@ -55,7 +56,7 @@ catch(Throwable $ex){error_log($ex->getMessage());$orders=[];$error='Pedidos ind
 <?php if($success):?><div class="alert alert-success"><?=e($success)?></div><?php endif;?>
 <div class="table-responsive"><table class="table table-hover align-middle"><thead><tr><th>Pedido</th><th>Cliente</th><th>Total</th><th>Pagamento</th><th>Entrega</th><th>Ações</th></tr></thead><tbody>
 <?php foreach($orders as $o):?><tr><td><span class="small"><?=e($o['token_rastreio'])?></span><div class="text-muted small"><?=e($o['created_at'])?></div></td><td><?=e($o['cliente'])?></td><td><?=money($o['total'])?></td><td><?=e($o['status_pagamento']==='a_receber_na_entrega'?'A receber na entrega':($o['status_pagamento']==='pendente'?'Aguardando Pix':$o['status_pagamento']))?><div class="small text-muted"><?=e(match($o['metodo_pagamento']){'pix_manual'=>'Pix','debito_entrega'=>'Débito','credito_entrega'=>'Crédito',default=>'Pagamento na entrega'})?></div></td><td><?=e($labels[$o['status_logistico']]??$o['status_logistico'])?></td><td>
-<?php if(in_array($o['status_pagamento'],['pendente','a_receber_na_entrega'],true)&&$o['status_logistico']!=='cancelado'):?>
+<?php if((($o['status_pagamento']==='pendente') || ($o['status_pagamento']==='a_receber_na_entrega' && $o['status_logistico']==='entregue')) && $o['status_logistico']!=='cancelado'):?>
 <form method="post" class="mb-2" onsubmit="return confirm('Confirma que o valor foi efetivamente recebido?')"><input type="hidden" name="csrf" value="<?=e(csrf())?>"><input type="hidden" name="id" value="<?=(int)$o['id']?>"><input type="hidden" name="acao" value="confirmar_pagamento"><button class="btn btn-sm btn-outline-primary">Confirmar pagamento</button></form><?php endif;?>
 <?php if(!empty($next[$o['status_logistico']])):?>
 <form method="post" class="d-flex gap-1"><input type="hidden" name="csrf" value="<?=e(csrf())?>"><input type="hidden" name="id" value="<?=(int)$o['id']?>"><input type="hidden" name="acao" value="logistica"><select class="form-select form-select-sm" aria-label="Novo status" name="status">
