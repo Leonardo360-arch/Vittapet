@@ -3,6 +3,7 @@
 Este histórico identifica versões **planejadas/documentadas** e versões **lançadas**. Não significa que o sistema já está implementado.
 
 ## [1.0.0] — Em desenvolvimento (17/11/2026)
+- Adicionado em branch de recurso: migration 003 de despesas, dashboard de indicadores, registro financeiro e orientação/roteamento para InfinityFree gratuito; revisão de execução/hospedagem pendente.
 **Produto:** VittaPet Store, sem serviços.
 - Escopo definido: catálogo, CRUD MySQL, carrinho reativo, checkout, pedidos, embalagem e entrega, administração, estoque, financeiro e dashboard.
 - Definidas duas APIs da primeira versão: ViaCEP e geocodificação de endereço da loja com mapa.
