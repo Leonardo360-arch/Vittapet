@@ -29,9 +29,33 @@ Write-Host 'Banco iniciado. As migrations 001-009 são importadas somente se o v
 if ([string]::IsNullOrWhiteSpace($AdminEmail)) {
     $AdminEmail = Read-Host 'E-mail do administrador para localhost'
 }
-if (-not [System.Net.Mail.MailAddress]::TryCreate($AdminEmail, [ref]([System.Net.Mail.MailAddress]$null))) {
-    # A validação definitiva é realizada pelo script PHP.
-    Write-Host 'O formato do e-mail será validado pelo provisionamento.'
+if ($AdminEmail -notmatch '^[^\s@]+@[^\s@]+\.[^\s@]+$secure = Read-Host 'Senha administrativa (mínimo 12 caracteres)' -AsSecureString
+$pointer = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
+try {
+    $plain = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($pointer)
+    $env:ADMIN_EMAIL = $AdminEmail
+    $env:ADMIN_NAME = $AdminName
+    $env:ADMIN_PASSWORD = $plain
+    # "-e VAR" passa a variável de ambiente; não exibe senha na linha de comando.
+    docker compose -f compose.local.yaml exec -T -e ADMIN_EMAIL -e ADMIN_NAME -e ADMIN_PASSWORD app php scripts/create_admin.php
+    if ($LASTEXITCODE -ne 0) {
+        throw 'Falha ao criar administrador. Confira se o banco inicializou e se a senha tem pelo menos 12 caracteres.'
+    }
+}
+finally {
+    [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($pointer)
+    Remove-Item Env:ADMIN_PASSWORD -ErrorAction SilentlyContinue
+    Remove-Item Env:ADMIN_EMAIL -ErrorAction SilentlyContinue
+    Remove-Item Env:ADMIN_NAME -ErrorAction SilentlyContinue
+    Remove-Variable plain -ErrorAction SilentlyContinue
+}
+Write-Host ''
+Write-Host 'Loja:       http://localhost:8080/'
+Write-Host 'Admin:      http://localhost:8080/login.php'
+Write-Host 'phpMyAdmin: http://localhost:8081/ (vittapet_local / vittapet_dev_only)'
+Write-Host 'Lembre-se de cadastrar produtos, WhatsApp, frete e prefixos de CEP no painel.'
+) {
+    throw 'Formato de e-mail inválido.'
 }
 $secure = Read-Host 'Senha administrativa (mínimo 12 caracteres)' -AsSecureString
 $pointer = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
