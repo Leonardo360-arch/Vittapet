@@ -1,57 +1,33 @@
-# VittaPet
+# VittaPet Store — MVP acadêmico (v1.0)
 
-Sistema web para Pet Shop, com evolução planejada para clínica veterinária, loja virtual e Portal do Tutor.
+Loja virtual de produtos pet em PHP 8, MySQL e JavaScript, preparada para evoluir para o ecossistema VittaPet.
 
-## Entrega acadêmica — Desenvolvimento Web II
+## Escopo obrigatório da v1.0
 
-**Prazo:** 23/11/2026.
+**Somente loja:** catálogo, categorias, carrinho, checkout, histórico de pedidos, acompanhamento de embalagem e entrega, estoque, painel administrativo, indicadores e relatórios financeiros. Não existem serviços veterinários, banho e tosa ou agendamento nesta versão.
 
-**Escopo do MVP:**
-- Interface pública responsiva com catálogo de produtos;
-- CRUD de produtos (Create, Read, Update, Delete) com PHP 8 e MySQL;
-- Acesso administrativo protegido por sessão;
-- Integração de **duas APIs públicas**: ViaCEP e Dog CEO;
-- Publicação no InfinityFree;
-- Relatório técnico e evidências de teste.
+### Requisitos acadêmicos de DW2 — entrega em 23/11/2026
+- [ ] CRUD completo e real de produtos usando MySQL e PHP
+- [ ] Interface original e responsiva
+- [ ] Consumo e apresentação de JSON de duas APIs (ViaCEP + Dog CEO como proposta)
+- [ ] Publicação verificável no InfinityFree
+- [ ] Documentação técnica e credenciais de teste (quando necessário), entregues no Teams
 
-> **Situação:** repositório inicializado. Funcionalidades acima são planejadas, ainda não implementadas. Não considerar a entrega concluída antes de validar CRUD, APIs e hospedagem.
+### Fluxo comercial alvo
+Produto -> Carrinho -> Checkout -> Pedido aguardando pagamento -> Em separação -> Embalado -> Saiu para entrega -> Entregue. Cancelamento e exceções devem ser tratados com histórico. **Não marcar pagamento como confirmado sem confirmação confiável**; para o MVP podem existir meios manuais explicitamente identificados.
 
-## Arquitetura-alvo
+### Dashboard alvo
+Receita confirmada, despesas, resultado estimado (com custo de mercadorias), pedidos por status, ticket médio, produtos mais vendidos, estoque baixo e gráficos por período. Dados demonstrativos devem ser identificados e não confundidos com dados reais.
 
-Monólito modular em PHP 8, MySQL 8, PDO, HTML5, CSS3, Bootstrap 5 e JavaScript ES6+. Separação de apresentação, controllers, services e repositories. Apenas `public/` deve ser exposto pelo servidor; ajustes específicos da hospedagem InfinityFree precisam preservar proteção dos arquivos internos.
+### Segurança
+Autenticação e autorização administrativa, password_hash/password_verify, PDO parametrizado, CSRF para alterações, transações de pedidos/estoque, segredos fora da pasta pública, rastreio por token não enumerável, logs sem dados sensíveis e validação de entradas.
 
-## Evolução (VittaPet v2.1)
+## Versão 2.0 — Ecossistema integrado
+A documentação VittaPet v2.1 anterior passa a ser **especificação de evolução**: tutores/pets, clínica, prontuários, vacinas, exames, banho e tosa, agenda, portal do tutor, VittaBot, mural, fidelidade, concursos, notificações e serviços integrados. A versão 2.0 do produto não significa que todos os módulos existentes no documento original tenham sido implementados.
 
-1. Tutores, pets, agenda, estoque e caixa;
-2. Consultas, prontuários, vacinas, exames e Portal do Tutor;
-3. Carrinho, checkout e rastreio de pedidos;
-4. VittaBot, e-mails, VittaPontos, mural e concursos;
-5. Testes, privacidade, auditoria e endurecimento da segurança.
+## Arquitetura
+Monólito modular em PHP/PDO/MySQL, com camadas de apresentação, controllers, services e repositories, migrations incrementais e apenas arquivos públicos expostos. Evitar padrões de projeto sem justificativa. A arquitetura deve permitir adicionar novos módulos sem refazer o catálogo, os usuários, o financeiro e os pedidos.
 
-O **MVP é a fundação do produto**, não um projeto descartável. Módulos futuros serão incorporados por migrations versionadas e componentes isolados, preservando dados e funcionalidades existentes.
-
-## Estrutura prevista
-
-```text
-public/             # Única pasta pública
-src/                # Controllers, Services, Repositories
-config/             # Configuração privada
-includes/           # Componentes compartilhados e segurança
-database/migrations # Esquema versionado
-database/seeds/     # Dados de demonstração
-storage/logs/       # Arquivos privados e logs
-tests/              # Testes
-docs/               # Documentação do MVP e roadmap
-```
-
-## Critérios de aceite (DW2)
-
-- [ ] CRUD completo com persistência MySQL, sem erros de PHP
-- [ ] Layout e regras de negócio originais do tema Pet Shop
-- [ ] Documentação técnica organizada
-- [ ] Integração de duas APIs com tratamento JSON
-- [ ] Hospedagem InfinityFree validada por URL pública
-
-## Segurança e colaboração
-
-Não versionar senhas, credenciais, arquivos `.env` ou dados sensíveis. Commits devem ser descritivos; preferir branches de funcionalidade e revisão antes da integração na `main`.
+## Documentação e andamento
+- [Roadmap e escopo detalhado](docs/ROADMAP.md)
+- Estado atual: **planejamento atualizado; implementação e testes ainda pendentes**.
