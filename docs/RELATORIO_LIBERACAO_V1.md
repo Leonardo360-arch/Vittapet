@@ -1,7 +1,7 @@
 # Relatório de liberação — Revisão documental 09
 
 **Data:** 17/11/2026  
-**Última versão aprovada em CI antes da revisão:** `1.0.0-dev.5`.  
+**Última versão funcional aprovada no CI antes da revisão:** `1.0.0-dev.5`. **Ciclo de correções documentais:** `1.0.0-dev.6`.  
 **Objetivo:** alinhar documentação com código implementado, registrar evidências e preparar decisões de release.
 
 ## Evidências existentes
