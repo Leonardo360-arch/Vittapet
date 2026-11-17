@@ -33,7 +33,7 @@ jobs:
           set -euo pipefail
           test -f VERSION
           grep -Eq '^1[.]0[.]0-dev[.][0-9]+$' VERSION || { echo 'VERSION inválida'; exit 1; }
-          for file in config/database.php includes/bootstrap.php public/index.php public/login.php public/admin/produtos.php public/checkout.php public/carrinho.php public/rastrear.php database/migrations/006_login_tentativas.sql database/migrations/007_frete_fixo.sql database/migrations/008_cobertura_cep.sql database/migrations/009_auditoria_pagamentos.sql includes/delivery_coverage.php includes/order_inventory.php tests/integration_http.php tests/concurrency_stock.php scripts/build_deploy.php; do
+          for file in config/database.php includes/bootstrap.php public/index.php public/login.php public/admin/produtos.php public/checkout.php public/carrinho.php public/rastrear.php database/migrations/006_login_tentativas.sql database/migrations/007_frete_fixo.sql database/migrations/008_cobertura_cep.sql database/migrations/009_auditoria_pagamentos.sql includes/delivery_coverage.php includes/order_inventory.php tests/integration_http.php tests/concurrency_stock.php tests/seed_browser.php scripts/build_deploy.php package.json playwright.config.cjs tests/browser/store.spec.cjs; do
             test -f "$file" || { echo "Arquivo ausente: $file"; exit 1; }
           done
           if [ -f config/local.php ] || [ -f .env ]; then
@@ -117,6 +117,19 @@ jobs:
           test ! -e build/htdocs/docs
           test ! -e build/htdocs/scripts
           test ! -e build/htdocs/.git
+      - name: Preparar cenários de navegador no MySQL de homologação
+        shell: bash
+        run: |
+          set -euo pipefail
+          MYSQL_PWD="$DB_PASS" mysql --protocol=tcp -h "$DB_HOST" -u "$DB_USER" "$DB_NAME" -e "TRUNCATE TABLE login_tentativas; TRUNCATE TABLE consultas_rastreio;"
+          echo "TEST_PIX_TOKEN=$(php tests/seed_browser.php)" >> "$GITHUB_ENV"
+      - name: Preparar Playwright e Chromium
+        shell: bash
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Testes visuais em celular, tablet e desktop
+        run: npm run test:browser
       - name: Log do PHP em falha
         if: failure()
         run: cat /tmp/vittapet-php.log || true
