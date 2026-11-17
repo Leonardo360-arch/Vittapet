@@ -43,7 +43,7 @@ if($_SERVER['REQUEST_METHOD']==='POST') {
 try{$orders=db()->query('SELECT p.id,p.token_rastreio,p.total,p.status_pagamento,p.status_logistico,p.metodo_pagamento,p.created_at,c.nome cliente FROM pedidos p JOIN clientes c ON c.id=p.cliente_id ORDER BY p.id DESC LIMIT 100')->fetchAll();}
 catch(Throwable $ex){error_log($ex->getMessage());$orders=[];$error='Pedidos indisponíveis.';}
 ?><!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pedidos — VittaPet</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"><link href="../assets/css/tokens.css" rel="stylesheet"></head><body>
-<nav class="navbar border-bottom"><div class="container"><a class="navbar-brand" href="produtos.php">VittaPet Store</a><div class="d-flex gap-3"><a href="produtos.php">Produtos</a><a href="../logout.php">Sair</a></div></div></nav>
+<nav class="navbar border-bottom"><div class="container"><a class="navbar-brand" href="produtos.php">VittaPet Store</a><div class="d-flex gap-3"><a href="produtos.php">Produtos</a><a href="dashboard.php">Dashboard</a><a href="financeiro.php">Financeiro</a><a href="../logout.php">Sair</a></div></div></nav>
 <main class="container py-4"><h1 class="h3">Pedidos da loja</h1><p class="text-muted">Pagamentos confirmados manualmente. Um pedido pago não pode ser cancelado sem o procedimento de estorno.</p>
 <?php if($error):?><div class="alert alert-danger"><?=e($error)?></div><?php endif;?>
 <?php if($success):?><div class="alert alert-success"><?=e($success)?></div><?php endif;?>
