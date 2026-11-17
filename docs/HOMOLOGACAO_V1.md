@@ -1,22 +1,22 @@
 # Homologação formal — VittaPet Store v1
 
-**Versão candidata atual:** `1.0.0-dev.5`; incremento por correção em `VERSION` e `CHANGELOG.md` antes de cada merge. Ver `docs/VERSIONAMENTO.md`.
+**Versão atual em homologação:** `1.0.0-dev.6` (revisão documental); **`rc.1` ainda não autorizada**; incremento por correção em `VERSION` e `CHANGELOG.md` antes de cada merge. Ver `docs/VERSIONAMENTO.md`.
 
-**Ambiente atual:** código em GitHub, CI PHP/MySQL proposto; **InfinityFree não instalado**. Documento vivo: registrar resultados, não preencher com aprovações hipotéticas.
+**Ambiente atual:** código em GitHub, CI PHP/MySQL e Playwright Chromium executados; **InfinityFree não instalado**. Documento vivo: registrar resultados, não preencher com aprovações hipotéticas.
 
 ## Portões de qualidade
 | Porta | Evidência obrigatória | Estado inicial |
 |---|---|---|
-| G1 — Sintaxe e estrutura | GitHub Actions PHP lint aprovado | **Aprovado no run 44097037063** |
-| G2 — Banco e fluxo principal | CI MySQL 8/HTTP (CRUD, carrinho, checkout, pagamentos, estoque, sessão) aprovado | **55 asserts aprovados no run 44097037063** |
-| G3 — Testes de borda/segurança | CSRF, login bloqueado, rastreio, concorrência, replay, injeção, auditoria | Pendente |
+| G1 — Sintaxe e estrutura | GitHub Actions PHP lint aprovado | **Aprovado no run 44111312517** |
+| G2 — Banco e fluxo principal | CI MySQL 8/HTTP (CRUD, carrinho, checkout, pagamentos, estoque, sessão) aprovado | **78 asserções aprovadas no run 44111312517** |
+| G3 — Testes de borda/segurança | CSRF, login bloqueado, rastreio, concorrência, replay, injeção, auditoria | Cobertura automatizada parcial (inclui concorrência); auditoria manual pendente |
 | G4 — Qualidade de código | Revisão de responsabilidades, formatação, nomes, duplicações, tratamento de falhas | Parcial; existem páginas monolíticas |
-| G5 — Interface e APIs | Testes mobile/desktop, ViaCEP JSON, Nominatim JSON, mapa e WhatsApp | Playwright automatizado proposto na dev.5; serviços externos/dispositivos físicos pendentes |
-| G6 — Documentação técnica | Conferência de schema, requisitos, rastreio de testes, procedimentos, riscos e status real | Em elaboração |
+| G5 — Interface e APIs | Testes mobile/desktop, ViaCEP JSON, Nominatim JSON, mapa e WhatsApp | **15/15 Playwright aprovados na emulação**; APIs reais/dispositivos físicos pendentes |
+| G6 — Documentação técnica | Conferência de schema, requisitos, rastreio de testes, procedimentos, riscos e status real | Revisão documental dev.6; validação de links automatizada e avaliação humana pendente |
 | G7 — Hosting | **Somente após G1–G6:** upload em InfinityFree, importar SQL, HTTP/HTTPS, segredos e rotas | Última etapa — não iniciada |
 
 ## Evidência automatizada
-[Relatório da execução QA 01](RELATORIO_QA_EXECUCAO_01.md). A aprovação G1/G2 não equivale à homologação geral.
+[QA 08 com CI 44111312517](QA_REVISAO_08.md), [Relatório de liberação](RELATORIO_LIBERACAO_V1.md) e [Checklist final](CHECKLIST_ENTREGA_V1.md). Aprovação automatizada não equivale à homologação geral.
 
 ## Selo de qualidade (metáfora interna)
 **Status inicial: NÃO EMITIDO.** Emitir 'VittaPet Store 1.0 — QA Homologado' apenas quando G1–G7 forem aprovados, P0 = 0 pendentes/reprovados, evidências identificadas por commit e responsável, e revisão de segurança/documentação concluída. Não representa certificação ISO, auditoria externa ou homologação de pagamento.

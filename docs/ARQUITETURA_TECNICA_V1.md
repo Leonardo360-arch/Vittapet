@@ -1,5 +1,5 @@
 # VittaPet Store — Documentação técnica oficial v1.0
-**Edição:** 1.0 — 17/11/2026  
+**Edição:** 1.0.0-dev.6 — 17/11/2026  
 **Repositório:** `Leonardo360-arch/Vittapet`  
 **Entrega acadêmica:** 23/11/2026  
 **Estado:** implementação incremental; a liberação depende de homologação documentada.
@@ -30,9 +30,15 @@ Vittapet/
 │   │   ├── financeiro.php               # despesas
 │   │   └── configuracoes.php            # endereço, mapa, telefone WhatsApp
 │   └── assets/css, assets/js            # identidade e mapa
-├── database/migrations/001...006*.sql   # esquema incremental
+├── database/migrations/001...009*.sql   # esquema incremental
 ├── scripts/create_admin.php             # provisionamento só por CLI
+├── scripts/build_deploy.php             # pacote allowlist
+├── scripts/check_docs.php               # consistência documental
+├── includes/order_inventory.php         # regras transacionais de estoque
+├── includes/delivery_coverage.php       # cobertura por prefixos de CEP
 ├── tests/integration_http.php           # integração PHP/MySQL
+├── tests/concurrency_stock.php          # última unidade com dois processos
+├── tests/browser/store.spec.cjs         # Playwright Chromium
 ├── deploy/INFINITYFREE.md               # apenas última etapa
 └── docs/                                # especificações, arquitetura, QA, roadmap
 ```
@@ -48,6 +54,9 @@ Migrações em ordem, nunca importar arquivos fora da ordem:
 | 004 | `configuracoes_loja` | nome/endereço/latitude/longitude |
 | 005 | alteração de `pedidos`, coluna `whatsapp` | Pix e débito/crédito na entrega |
 | 006 | `login_tentativas`, `consultas_rastreio` | limites de acesso |
+| 007 | coluna `configuracoes_loja.frete_fixo` | frete fixo configurável |
+| 008 | coluna `configuracoes_loja.cep_prefixos_entrega` | cobertura por CEP |
+| 009 | colunas `pedidos.pago_em`, `estornado_em`, `observacao_estorno` | registro de recebimento e estorno |
 
 Relações: `produtos.categoria_id → categorias.id`; `pedidos.cliente_id → clientes.id`; `pedido_itens.pedido_id → pedidos.id`; `pedido_itens.produto_id → produtos.id`; `pedido_historico.pedido_id → pedidos.id`; `movimentacoes_estoque.produto_id → produtos.id`; `movimentacoes_estoque.pedido_id → pedidos.id`. Chaves estrangeiras, índices e transações usam InnoDB; dinheiro usa `DECIMAL(10,2)` no banco.
 
@@ -56,17 +65,17 @@ Relações: `produtos.categoria_id → categorias.id`; `pedidos.cliente_id → c
 
 **Carrinho:** sesssão PHP armazena IDs/quantidades; preços atuais vêm do banco; eventos JavaScript atualizam totais via Fetch. Limite por produto validado. O servidor recalcula valores ao fechar a compra; o total que vier do navegador não é confiável.
 
-**Checkout:** recebe comprador e endereço, consulta ViaCEP por JSON ao sair do campo CEP; completa o endereço manualmente se API falhar. Bloqueio transacional de linhas de produtos `FOR UPDATE`, inserção de cliente/pedido/itens, baixa de estoque e histórico em transação. Token de rastreio com parte aleatória criptograficamente segura. Frete continua **R$ 0,00 apenas demonstrativo**: não liberar venda comercial sem regra e valor validado.
+**Checkout:** recebe comprador e endereço, consulta ViaCEP por JSON ao sair do campo CEP; completa o endereço manualmente se API falhar. Bloqueio transacional de linhas de produtos `FOR UPDATE`, inserção de cliente/pedido/itens, baixa de estoque e histórico em transação. Token de rastreio com parte aleatória criptograficamente segura. Frete fixo é configurado pelo administrador: valor não definido impede checkout, zero é escolha explícita. O checkout valida prefixos de CEP autorizados; a existência do endereço e a rota real ainda exigem conferência.
 
 **Pix antecipado:** `status_pagamento=pendente`, `status_logistico=aguardando_pagamento`; link `wa.me` abre mensagem pré-preenchida ao WhatsApp do estabelecimento, contendo código e valor total. Cliente confirma envio, lojista envia chave Pix, confere recebimento real e confirma no painel; status vira `confirmado/em_separacao` e o histórico é atualizado.
 
 **Cartão na entrega:** `debito_entrega` ou `credito_entrega`; o pedido inicia `a_receber_na_entrega/em_separacao` e avança para embalado, saiu para entrega e entregue. A confirmação financeira no painel só deve ocorrer após cobrança efetiva.
 
-**Cancelamento:** pedido pago não pode ser cancelado por fluxo simples; estorno completo ainda é pendente. Não utilizar pedido pago para simular estorno.
+**Cancelamento:** pedido pago antes da expedição pode registrar estorno **já executado externamente**, exigindo justificativa, com cancelamento e devolução de estoque transacional; o sistema não transfere dinheiro. Pós-despacho exige fluxo de devolução separado.
 
 **Rastreio:** código não sequencial; consulta exibe apenas situação financeira, logística e histórico, sem nome/endereço/itens; limitação de consultas por IP.
 
-**Financeiro:** relatório de receita considera pedidos com pagamento confirmado, custo histórico congelado de itens e despesas lançadas. Cálculos atuais filtram pedidos pela data de criação, **não pela data de confirmação financeira**; resultado é estimado e não equivale a demonstrações contábeis.
+**Financeiro:** relatório de receita considera pedidos com pagamento confirmado, custo histórico congelado de itens e despesas lançadas. Os filtros de receita utilizam `pago_em` para recebimentos confirmados; pedidos legados sem essa data exigem conciliação. Estornos retiram o pedido confirmado do saldo agregado, sem livro-razão histórico. O resultado é estimado e não equivale a demonstrações contábeis.
 
 ## 5. APIs e serviços externos
 | Integração | Local | Dado JSON | Comportamento de falha |
@@ -86,7 +95,7 @@ Geocodificação é manual, uma consulta ao configurar a loja; coordenadas são 
 - Dados do cliente para finalidade do pedido, sem uso para campanha de marketing sem consentimento.
 
 ## 7. Provisionamento da operação (sem dados fictícios)
-1. Importar as seis migrations em MySQL isolado.
+1. Importar as nove migrations (001–009) em MySQL isolado.
 2. Configurar `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASS` via variáveis locais ou `config/local.php` não versionado.
 3. Criar login administrativo por CLI: `ADMIN_EMAIL`, `ADMIN_NAME`, `ADMIN_PASSWORD` (mínimo 12 caracteres) + `php scripts/create_admin.php`. Não publicar senha em comando gravado no histórico do terminal; preferir prompt interativo/variável de ambiente de sessão.
 4. Login pelo e-mail informado no provisionamento. Não existe e-mail administrador padrão publicado.
@@ -109,7 +118,7 @@ Geocodificação é manual, uma consulta ao configurar a loja; coordenadas são 
 | GET / POST | `/admin/configuracoes.php` | admin | localização/WhatsApp |
 
 ## 9. Testes e critérios de liberação
-`php -l` em todos arquivos PHP, migrations 001–006 em MySQL 8 isolado, integração HTTP com cookies de sessão e verificações SQL, casos manuais e segurança. Referência: [Matriz de QA](MATRIZ_TESTES_V1.md), [Checklist de homologação](HOMOLOGACAO_V1.md).
+`php -l` em todos arquivos PHP, migrations 001–009 em MySQL 8 isolado, 78 asserções HTTP/MySQL, concorrência real entre duas conexões e 15 cenários Chromium emulados passaram no CI da dev.5. APIs externas reais, dispositivos físicos e segurança manual permanecem necessários. Referência: [Matriz de QA](MATRIZ_TESTES_V1.md), [Checklist de homologação](HOMOLOGACAO_V1.md).
 
 **Critério de bloqueio:** sem aprovação dos cenários críticos (login, CRUD, carrinho, checkout, status financeiro, estoque, privacidade) não há selo de qualidade interno nem release final, mesmo com CI verde.
 

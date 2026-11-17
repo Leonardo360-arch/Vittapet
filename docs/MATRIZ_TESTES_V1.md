@@ -1,17 +1,17 @@
 # Matriz de testes — VittaPet Store v1.0 (DW2)
-**Data:** 17/11/2026 | **Versão da matriz:** 1.0 | **Critério:** evidência objetiva, sem notas fictícias.
+**Data:** 17/11/2026 | **Revisão da matriz:** 1.1 | **Critério:** evidência objetiva, sem notas fictícias.
 
 ## Classificações
 - **P0 bloqueador:** falha impede a homologação.
 - **P1 alto:** falha deve ser corrigida antes da entrega final.
 - **P2 melhoria:** documentar e decidir correção.
 - **Automático (CI):** executado por GitHub Actions com PHP 8.2 e MySQL 8 temporário; ver resultado do workflow, não presumir aprovação.
-- **Manual:** requires navegador, inspetor de rede ou evidência humana; marcar *pendente* até executar.
+- **Manual:** requer navegador, inspetor de rede ou evidência humana; marcar *pendente* até executar.
 
 ## Casos funcionais, dados e segurança
 | ID | Prioridade | Área | Procedimento | Resultado esperado | Tipo |
 |---|---|---|---|---|---|
-| QA-001 | P0 | Infra | Aplicar migrations 001 a 006 em DB vazio | Todas tabelas criadas, FKs íntegras | CI |
+| QA-001 | P0 | Infra | Aplicar migrations 001 a 009 em DB vazio | Todas tabelas criadas, FKs íntegras | CI |
 | QA-002 | P0 | Admin | Criar login usando hash gerado no terminal | Admin autenticável sem senha exposta | CI |
 | QA-003 | P0 | Segurança | Acessar /admin/produtos.php sem sessão | HTTP 302 para login | CI |
 | QA-004 | P0 | Login | Senha incorreta | Não autentica | CI |
@@ -39,13 +39,13 @@
 | QA-026 | P0 | Sessão | Tentar acessar painel após logout | Não autorizado | CI |
 | QA-027 | P0 | Login | Exceder 8 falhas ou 30 falhas/IP | HTTP 429 | Manual + DB |
 | QA-028 | P0 | Rastreio | Exceder 40 consultas/IP/10 min | HTTP 429 | Manual + DB |
-| QA-029 | P0 | Concorrência | Dois checkouts disputam última unidade | Só um conclui; sem estoque negativo | Teste concorrente pendente |
-| QA-030 | P0 | Duplicidade | Reenviar checkout (duplo clique/replay) | Não duplica pedido | Manual + DB |
+| QA-029 | P0 | Concorrência | Dois processos PHP/PDO disputam última unidade | 1 grava, 1 rejeita; sem estoque negativo | CI, cenário isolado aprovado |
+| QA-030 | P0 | Duplicidade | Reenviar checkout (duplo clique/replay) | Não duplica pedido | CI aprovado para replay; duplo clique físico pendente |
 | QA-031 | P0 | Pagamento | Tentar cancelar pedido pago | Bloqueio até estorno | Manual + DB |
-| QA-032 | P0 | API 1 | ViaCEP CEP válido/erro/rede indisponível | JSON e fallback manual | Navegador |
-| QA-033 | P0 | API 2 | Nominatim endereço real e retorno JSON | Coordenadas gravadas, mapa exibido | Navegador |
+| QA-032 | P0 | API 1 | ViaCEP CEP válido/erro/rede indisponível | JSON e fallback manual | Mock Playwright aprovado; API real pendente |
+| QA-033 | P0 | API 2 | Nominatim endereço real e retorno JSON | Coordenadas gravadas, mapa exibido | Mock Playwright aprovado; API e tiles reais pendentes |
 | QA-034 | P1 | Mapa | Sem localização cadastrada | Sem endereço fictício nem marcador falso | Navegador |
-| QA-035 | P1 | Responsividade | 360px, 768px, 1366px | Sem overflow, cards/forms/tabelas usáveis | Navegador |
+| QA-035 | P1 | Responsividade | Mobile, tablet e 1366px | Sem overflow; acessibilidade e formulários operáveis | Playwright: catálogo aprovado; demais telas/dispositivo físico pendentes |
 | QA-036 | P0 | Segurança | CSRF inválido em formulário administrativo | HTTP 419, sem alteração SQL | Manual |
 | QA-037 | P0 | Segurança | HTML/JS em nome do produto | Escapado, sem execução de script | Manual |
 | QA-038 | P0 | Privacidade | Token de rastreio válido | Não exibe nome, telefone, endereço | Manual |
@@ -53,6 +53,15 @@
 | QA-040 | P0 | Infra | Servidor InfinityFree publica com URLs/HTTPS | Rotas respondem e DB funciona | **Por último** |
 | QA-041 | P0 | Infra | GET /config/local.php e /includes/bootstrap.php | 403/404, nunca código ou credenciais | **Por último** |
 | QA-042 | P0 | Documento | Código, SQL, APIs, procedimentos e riscos | Conteúdo e evidências consistentes | Revisão manual |
+
+## Casos complementares após dev.5
+| ID | Prioridade | Área | Cenário | Estado |
+|---|---|---|---|---|
+| QA-043 | P0 | Frete | Frete ausente bloqueia compra; zero é grátis explícito; taxa somada no servidor | CI aprovado |
+| QA-044 | P0 | CEP | Prefixo permitido/negado, sem criação de pedido fora da cobertura | CI aprovado; área real pendente |
+| QA-045 | P0 | Estorno | Pago e ainda não despachado: estorno externo previamente realizado, log e reposição única | CI aprovado; validação operacional pendente |
+| QA-046 | P1 | Browser | ViaCEP/Nominatim com respostas JSON simuladas | 15 cenários totais de browser aprovados com outras verificações; API real pendente |
+| QA-047 | P0 | Release | Documentação coerente, evidência real e versão candidata sem P0 aberto | Em revisão, não aprovado |
 
 ## Qualidade interna ('selo' metafórico)
 **NÃO EMITIDO — aguardando homologação.** Para registrar APROVADO:

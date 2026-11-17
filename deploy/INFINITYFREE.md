@@ -10,9 +10,6 @@ A versão gratuita tem `htdocs` como raiz web fixa e restringe o uso de arquivos
   public/               # PHP das telas, assets, admin
   config/               # database.php e local.php privado
   includes/             # bootstrap, utilitários
-  database/             # migrations; preferencialmente NAO subir em producao
-  docs/                 # documentação; preferencialmente NAO subir em producao
-  deploy/               # orientações; preferencialmente NAO subir em producao
 ```
 
 **Empacotamento recomendado (somente após homologação):** executar `php scripts/build_deploy.php` na raiz do projeto e usar a estrutura gerada em `build/htdocs/`. Ela contém apenas `.htaccess`, `public/`, `includes/`, `config/database.php` e `config/.htaccess`; **não contém** `config/local.php` nem documentos/migrations/testes/scripts. Configurar credenciais apenas no servidor, fora do Git e do pacote. Não executar FTP antes dos testes de segurança.
@@ -20,12 +17,12 @@ A versão gratuita tem `htdocs` como raiz web fixa e restringe o uso de arquivos
 ## Passo a passo
 1. Criar site/conta InfinityFree e habilitar HTTPS/SSL.
 2. No painel MySQL Databases, criar o banco e anotar **hostname, usuário e nome do banco exatamente como fornecidos**. Não assumir `localhost`.
-3. Importar migrations `001_store_base.sql`, `002_pedidos.sql`, `003_financeiro.sql`, `004_localizacao_loja.sql`, `005_pagamentos_whatsapp.sql` e `006_login_tentativas.sql` e `007_frete_fixo.sql` e `008_cobertura_cep.sql` e `009_auditoria_pagamentos.sql` nessa ordem, via phpMyAdmin do painel.
+3. Importar migrations **001 a 009**, em ordem numérica e sem repetir etapas, pelo phpMyAdmin do painel. Arquivos SQL permanecem fora de `htdocs`.
 4. Criar `config/local.php` a partir de `config/local.example.php` **somente no servidor/local** e preencher credenciais reais. Nunca realizar commit desse arquivo.
-5. Criar usuário administrador com senha forte e hash (`password_hash`), sem publicar credenciais no Git.
+5. Provisionar usuário administrador com e-mail e hash de senha forte antes do upload, por procedimento privado/CLI; não enviar `scripts/create_admin.php` para `htdocs` nem publicar credenciais no Git.
 6. Transferir arquivos permitidos para dentro de `htdocs`, preservando a estrutura. O `.htaccess` oculto da raiz deve ser enviado.
 7. Confirmar com URL do navegador: `/` abre loja; `/login.php` abre login; `/admin/produtos.php` redireciona para login sem sessão; `/assets/css/tokens.css` responde CSS.
-8. Confirmar que `/config/database.php`, `/config/local.php`, `/includes/bootstrap.php` e `/database/migrations/001_store_base.sql` **não são acessíveis via HTTP** (403/404 esperado). Se retornarem conteúdo, suspender publicação.
+8. Confirmar que `/config/database.php`, `/config/local.php`, `/includes/bootstrap.php` **não são acessíveis via HTTP** (403/404 esperado). O caminho `/database/` nem deve existir no pacote. Se qualquer URL privada revelar conteúdo, suspender a publicação.
 9. Testar banco, CRUD, carrinho, checkout, rastreio, relatórios e APIs em navegador real, incluindo celular.
 10. Testar SSL e não divulgar link acadêmico antes de passar no checklist de QA.
 
