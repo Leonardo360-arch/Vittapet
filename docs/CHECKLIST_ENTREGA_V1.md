@@ -1,7 +1,7 @@
 # Checklist de liberação — VittaPet Store v1
 
 **Preparação:** 17/11/2026. **Prazo acadêmico:** 23/11/2026.  
-**Versão do código atual antes desta revisão:** 1.0.0-dev.5.  
+**Base técnica de testes:** 1.0.0-dev.5. **Versão da revisão documental:** 1.0.0-dev.6.  
 **Decisão:** **NÃO PROMOVER PARA rc.1 AINDA**; existem validações P0 manuais e de infraestrutura pendentes.
 
 ## Portões e evidência
