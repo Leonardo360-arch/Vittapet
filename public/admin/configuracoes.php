@@ -2,8 +2,9 @@
 declare(strict_types=1);
 require dirname(__DIR__,2).'/includes/bootstrap.php';
 requireAdmin();
+require_once dirname(__DIR__,2).'/includes/delivery_coverage.php';
 $erro=null;$sucesso=isset($_GET['salvo']);
-$default=['nome'=>'VittaPet Store','cep'=>'','logradouro'=>'','numero'=>'','complemento'=>'','bairro'=>'','cidade'=>'','uf'=>'','latitude'=>'','longitude'=>'','whatsapp'=>'','frete_fixo'=>''];
+$default=['nome'=>'VittaPet Store','cep'=>'','logradouro'=>'','numero'=>'','complemento'=>'','bairro'=>'','cidade'=>'','uf'=>'','latitude'=>'','longitude'=>'','whatsapp'=>'','frete_fixo'=>'','cep_prefixos_entrega'=>''];
 if($_SERVER['REQUEST_METHOD']==='POST'){
  try {
    assertCsrf();
@@ -28,19 +29,20 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
    if($frete!=='' && !preg_match('/^(?:0|[1-9][0-9]{0,7})(?:\.[0-9]{1,2})?$/D',$frete)) {
      throw new InvalidArgumentException('Frete inválido. Informe valor como 8.50 ou deixe vazio para desativar o checkout.');
    }
+   $prefixos=normalizeDeliveryPrefixes((string)($_POST['cep_prefixos_entrega']??''));
    $db=db();
-   $st=$db->prepare('UPDATE configuracoes_loja SET nome=?,cep=?,logradouro=?,numero=?,complemento=?,bairro=?,cidade=?,uf=?,latitude=?,longitude=?,geocodificado_em=?,whatsapp=?,frete_fixo=? WHERE id=1');
+   $st=$db->prepare('UPDATE configuracoes_loja SET nome=?,cep=?,logradouro=?,numero=?,complemento=?,bairro=?,cidade=?,uf=?,latitude=?,longitude=?,geocodificado_em=?,whatsapp=?,frete_fixo=?,cep_prefixos_entrega=? WHERE id=1');
    $st->execute([
      $values['nome'],$values['cep']?:null,$values['logradouro']?:null,$values['numero']?:null,
      $values['complemento']?:null,$values['bairro']?:null,$values['cidade']?:null,$values['uf']?:null,
-     $lat===''?null:$lat,$lon===''?null:$lon,$lat===''?null:date('Y-m-d H:i:s'),$values['whatsapp']?:null,$frete===''?null:$frete
+     $lat===''?null:$lat,$lon===''?null:$lon,$lat===''?null:date('Y-m-d H:i:s'),$values['whatsapp']?:null,$frete===''?null:$frete,$prefixos
    ]);
    header('Location: configuracoes.php?salvo=1');exit;
  }catch(InvalidArgumentException $ex){$erro=$ex->getMessage();}
  catch(Throwable $ex){error_log($ex->getMessage());$erro='Não foi possível salvar a localização. Verifique a migration 004.';}
 }
 try {
- $dados=db()->query('SELECT nome,cep,logradouro,numero,complemento,bairro,cidade,uf,latitude,longitude,whatsapp,frete_fixo FROM configuracoes_loja WHERE id=1')->fetch();
+ $dados=db()->query('SELECT nome,cep,logradouro,numero,complemento,bairro,cidade,uf,latitude,longitude,whatsapp,frete_fixo,cep_prefixos_entrega FROM configuracoes_loja WHERE id=1')->fetch();
  if(!$dados)throw new RuntimeException('Configuração ausente.');
  $dados=array_replace($default,array_map(static fn($x)=>$x===null?'':(string)$x,$dados));
 }catch(Throwable $ex){error_log($ex->getMessage());$dados=$default;$erro='Configuração indisponível: execute migration 004.';}
@@ -59,7 +61,7 @@ foreach($labels as $key=>$label):
 <div class="col-md-6"><label for="latitude" class="form-label">Latitude</label><input id="latitude" name="latitude" class="form-control" inputmode="decimal" value="<?=e($dados['latitude'])?>" placeholder="-22.0000000"></div>
 <div class="col-md-6"><label for="longitude" class="form-label">Longitude</label><input id="longitude" name="longitude" class="form-control" inputmode="decimal" value="<?=e($dados['longitude'])?>" placeholder="-47.0000000"></div>
 <div class="col-12"><label for="whatsapp" class="form-label">WhatsApp comercial (DDI + DDD + número)</label><input id="whatsapp" name="whatsapp" class="form-control" inputmode="tel" maxlength="16" placeholder="5511999999999" value="<?=e($dados['whatsapp'])?>"><p class="small text-muted">Necessário para os clientes solicitarem a chave Pix. Não preencher com dados fictícios.</p></div>
-<div class="col-md-6"><label for="frete_fixo" class="form-label">Frete fixo (R$)</label><input class="form-control" id="frete_fixo" name="frete_fixo" type="number" min="0" max="99999999.99" step="0.01" value="<?=e($dados['frete_fixo'])?>" placeholder="Não configurado"><p class="small text-muted">Vazio: compras bloqueadas. Zero: frete grátis definido conscientemente. É uma taxa única; cobertura geográfica precisa de validação antes de vendas reais.</p></div><div class="col-12 d-flex gap-2 flex-wrap"><button class="btn btn-primary" type="submit">Salvar configurações</button><a href="../index.php" class="btn btn-outline-secondary">Visualizar loja</a></div>
+<div class="col-md-6"><label for="frete_fixo" class="form-label">Frete fixo (R$)</label><input class="form-control" id="frete_fixo" name="frete_fixo" type="number" min="0" max="99999999.99" step="0.01" value="<?=e($dados['frete_fixo'])?>" placeholder="Não configurado"><p class="small text-muted">Vazio: compras bloqueadas. Zero: frete grátis definido conscientemente. É uma taxa única; cobertura geográfica precisa de validação antes de vendas reais.</p></div><div class="col-12"><label for="cep_prefixos_entrega" class="form-label">Cobertura de entrega — prefixos de CEP (5 dígitos)</label><textarea class="form-control" id="cep_prefixos_entrega" name="cep_prefixos_entrega" rows="2" maxlength="500" placeholder="01001, 01002"><?=e($dados['cep_prefixos_entrega'])?></textarea><p class="small text-muted">Informe apenas prefixos reais que a loja aceita entregar, separados por vírgula. Cada prefixo autoriza os 100 CEPs que começam com esses 5 números. Sem prefixos cadastrados, pedidos serão bloqueados. Esta regra não valida a existência do endereço; confirme a cobertura antes de receber vendas reais.</p></div><div class="col-12 d-flex gap-2 flex-wrap"><button class="btn btn-primary" type="submit">Salvar configurações</button><a href="../index.php" class="btn btn-outline-secondary">Visualizar loja</a></div>
 </form></main>
 <script>
 (() => {
