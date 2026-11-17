@@ -89,6 +89,8 @@ function placeOrder(string $method, string $jar = 'visitor'): string {
     parse_str((string)parse_url($response['location'], PHP_URL_QUERY), $query);
     $token = (string)($query['token'] ?? '');
     check((bool)preg_match('/^VP-[0-9]{2}-[A-F0-9]{16}$/', $token), 'Token de rastreio forte e formatado');
+    $replay=http('/checkout.php',$data,$jar,false,true);
+    check($replay['status']===200 && str_contains($replay['body'],'já foi enviado'), 'Replay de checkout não cria novo pedido');
     return $token;
 }
 
@@ -127,6 +129,9 @@ try {
     http('/admin/produtos.php', $new, 'admin', false, true);
     $created = (int)$pdo->query("SELECT id FROM produtos WHERE nome='Brinquedo QA' AND ativo=1")->fetchColumn();
     check($created > 0, 'CRUD: cria produto com persistência SQL');
+    $csrfFail = http('/admin/produtos.php', ['csrf'=>'token-falso','action'=>'delete','id'=>$created], 'admin', false, true);
+    check($csrfFail['status']===419, 'CSRF inválido é rejeitado');
+    check((int)$pdo->query("SELECT ativo FROM produtos WHERE id=$created")->fetchColumn()===1, 'CSRF inválido não altera o produto');
     $new['action']='update';$new['id']=$created;$new['nome']='Brinquedo QA Editado';$new['preco_venda']='31.90';
     http('/admin/produtos.php', $new, 'admin', false, true);
     check((string)$pdo->query("SELECT preco_venda FROM produtos WHERE id=$created")->fetchColumn()==='31.90', 'CRUD: edita preço persistido');
@@ -153,6 +158,9 @@ try {
     $track=http('/rastrear.php?token='.urlencode($pixToken));
     check($track['status']===200 && str_contains($track['body'],'https://wa.me/5511999999999'), 'Rastreio exibe WhatsApp comercial configurado');
     check(str_contains($track['body'], urlencode($pixToken)), 'Mensagem WhatsApp inclui o código do pedido');
+    $early=http('/admin/pedidos.php', ['csrf'=>$adminCsrf,'id'=>$pix['id'],'acao'=>'logistica','status'=>'em_separacao'], 'admin', false, true);
+    check(str_contains($early['body'],'Pagamento ainda não confirmado'), 'Pix não pode entrar em separação antes de confirmar');
+    check(orderByToken($pdo,$pixToken)['status_logistico']==='aguardando_pagamento', 'Pix permanece aguardando após transição proibida');
     $confirm=http('/admin/pedidos.php', ['csrf'=>$adminCsrf,'id'=>$pix['id'],'acao'=>'confirmar_pagamento'], 'admin', false, true);
     check($confirm['status']===200, 'Admin aceita confirmação manual de Pix');
     $pix=orderByToken($pdo,$pixToken);
@@ -189,6 +197,19 @@ try {
     $logoutPost=http('/logout.php', ['csrf'=>$adminCsrf], 'admin', false, true);
     check($logoutPost['status']===302, 'Logout via POST e CSRF');
     check(http('/admin/dashboard.php', [], 'admin')['status']===302, 'Sessão encerrada não acessa o painel');
+
+    $ipHash=hash('sha256','127.0.0.1');
+    $emailHash=hash('sha256',mb_strtolower((string)getenv('ADMIN_EMAIL')));
+    $insertAttempt=$pdo->prepare('INSERT INTO login_tentativas(ip_hash,identificador_hash) VALUES(?,?)');
+    for($i=0;$i<8;$i++)$insertAttempt->execute([$ipHash,$emailHash]);
+    $newLogin=http('/login.php', [], 'blocked-login');
+    $limited=http('/login.php', ['csrf'=>field($newLogin['body'],'csrf'),'email'=>(string)getenv('ADMIN_EMAIL'),'senha'=>(string)getenv('ADMIN_PASSWORD')], 'blocked-login', false, true);
+    check($limited['status']===429, 'Rate limit do login bloqueia tentativa excessiva');
+
+    $insertTrack=$pdo->prepare('INSERT INTO consultas_rastreio(ip_hash) VALUES(?)');
+    for($i=0;$i<40;$i++)$insertTrack->execute([$ipHash]);
+    $limitedTrack=http('/rastrear.php?token='.urlencode($pixToken), [], 'blocked-track');
+    check($limitedTrack['status']===429, 'Rate limit do rastreamento bloqueia tentativas excessivas');
 
     echo "\nSUCESSO: $checks asserções HTTP + MySQL executadas. APIs externas, concorrência e InfinityFree permanecem fora desta suíte.\n";
 } catch (Throwable $exception) {
