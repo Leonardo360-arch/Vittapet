@@ -13,6 +13,9 @@
 
 > A versão 1.0 é **exclusivamente uma loja de produtos pet**. Não inclui veterinário, banho e tosa, serviços, agendamento, galeria de cães ou mural social.
 
+## Testar no localhost (Windows)
+A VittaPet pode rodar em `http://localhost:8080/` com Docker Desktop, sem instalar PHP ou MySQL no Windows. Use `powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\setup_local.ps1` na raiz do projeto. O phpMyAdmin fica em `http://localhost:8081/`. Veja [Guia de localhost](docs/LOCALHOST_WINDOWS.md) para instalação, banco, cadastro do administrador, diagnóstico, configuração comercial e opção sem Docker. **A configuração local não é enviada ao InfinityFree.**
+
 ## Entrega acadêmica — Desenvolvimento Web II
 
 **Prazo: 23/11/2026.** Critérios de avaliação do exercício:
@@ -53,6 +56,7 @@ O dashboard apresenta dados do MySQL, com receita efetivamente confirmada, despe
 - [QA — Revisão técnica 01](docs/QA_REVISAO_01.md)
 - [QA — Segurança e preparação de homologação](docs/QA_REVISAO_05.md)
 - [Instalação local](docs/INSTALACAO.md)
+- [Instalação rápida no Windows (Docker + localhost)](docs/LOCALHOST_WINDOWS.md)
 
 ## Arquitetura atual
 Monólito PHP/PDO/MySQL com controladores PHP, algumas regras extraídas para `includes/` e views integradas. Ainda não há separação completa em camadas MVC. Existem nove migrations, testes automatizados e configuração privada. O pacote de deploy usa uma lista de arquivos permitidos; o InfinityFree ainda não foi implantado.
