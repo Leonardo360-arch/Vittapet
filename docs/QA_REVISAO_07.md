@@ -2,7 +2,15 @@
 
 **Versão:** 1.0.0-dev.4  
 **Data:** 17/11/2026  
-**Status inicial:** execução CI e aprovação da etapa ainda necessárias; não representa selo final.
+**Status verificado:** gate automático aprovado no GitHub Actions — run [44107960675](https://github.com/Leonardo360-arch/Vittapet/actions/runs/44107960675) do commit `b8d182f791ebf2ea736ad0130f0333cafc516975`. Não representa selo final de produção.
+
+## Evidências de execução
+- Job `php-lint`: **success**.
+- Job `mysql-http`: **success**.
+- Suite HTTP/MySQL de regressão: **78 asserções aprovadas**.
+- Suite concorrente: **1 commit, 1 rejeição por estoque insuficiente, 1 item e 1 movimentação, saldo 0**.
+- `scripts/build_deploy.php`: gerou `build/htdocs`; verificações positivas de `.htaccess`, `checkout.php` e `order_inventory.php`; verificações negativas de segredos, docs, tests e migrations.
+
 
 ## Etapa 1 — concorrência
 Adicionado `tests/concurrency_stock.php`: dois processos PHP, cada um com PDO próprio, disputam a mesma unidade de produto InnoDB. Barreira garante que os dois estejam prontos antes de iniciar. Cada worker inicia transação, bloqueia produtos com `SELECT ... FOR UPDATE`, grava pedido, item e movimento, e finaliza ou faz rollback. A unidade está disponível apenas para um comprador. A validação exige:
@@ -23,12 +31,12 @@ Extraído `includes/order_inventory.php` com `lockCheckoutInventory(PDO,array)` 
 Inspecionada árvore atual do repositório, sem arquivo descartável óbvio. `.gitignore` reforçado e empacotador de produção por allowlist adicionado. Não apagar documentação, CI e migrations necessárias ao desenvolvimento. Ver `AUDITORIA_GIT_V1.md`.
 
 ## Critérios
-- [ ] PHP lint dos arquivos alterados passa.
-- [ ] Testes existentes HTTP/MySQL continuam verdes.
-- [ ] Dois processos concorrentes: 1 sucesso, 1 rejeição, estoque e movimentos corretos.
-- [ ] Pacote `build/htdocs` contém arquivos de runtime e exclui material desnecessário.
-- [ ] Nenhuma credencial real ou arquivo de editor incluído.
-- [ ] Revisão Git das alterações e merge via PR sem force push.
+- [x] PHP lint dos arquivos alterados passa.
+- [x] Testes existentes HTTP/MySQL continuam verdes.
+- [x] Dois processos concorrentes: 1 sucesso, 1 rejeição, estoque e movimentos corretos.
+- [x] Pacote `build/htdocs` contém arquivos de runtime e exclui material desnecessário.
+- [x] Nenhuma credencial real ou arquivo de editor incluído no pacote gerado pelo CI.
+- [ ] Revisão Git das alterações e merge via PR sem force push (conferir após merge).
 - [ ] InfinityFree fica como última etapa, sem publicação agora.
 
 **Selo QA global:** não emitido; restam verificações de navegador, APIs, UX, segurança e hosting.
