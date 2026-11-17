@@ -50,6 +50,7 @@ $demoCount = count(array_filter($produtos, static fn($p) => str_starts_with((str
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="assets/css/tokens.css" rel="stylesheet">
   <link href="assets/css/storefront.css" rel="stylesheet">
+  <link href="assets/css/storefront-interactions.css" rel="stylesheet">
   <link href="assets/css/mapa.css" rel="stylesheet">
   <?php if ($temMapa): ?>
     <link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet">
@@ -57,18 +58,25 @@ $demoCount = count(array_filter($produtos, static fn($p) => str_starts_with((str
 </head>
 <body class="storefront">
   <a class="visually-hidden-focusable position-absolute bg-white px-3 py-2" href="#conteudo">Pular para o conteúdo</a>
-  <div class="store-topline"><div class="container">Um espaço pensado com carinho para cães, gatos e seus tutores</div></div>
+  <div class="store-topline"><div class="container">Cuidado para cada fase da vida do seu pet <span aria-hidden="true">•</span> Escolha com carinho, compre com praticidade</div></div>
   <header class="store-header">
     <nav class="container store-nav" aria-label="Navegação da loja">
       <a href="index.php" class="store-brand" aria-label="VittaPet Store, início">
         <span class="store-brand-logo" aria-hidden="true">
           <svg viewBox="0 0 48 48"><ellipse cx="24" cy="31" rx="13" ry="10" transform="rotate(-8 24 31)"/><ellipse cx="11" cy="17" rx="4.1" ry="6" transform="rotate(-22 11 17)"/><ellipse cx="21" cy="12" rx="4.3" ry="6" transform="rotate(-8 21 12)"/><ellipse cx="32" cy="14" rx="4.1" ry="6" transform="rotate(14 32 14)"/><ellipse cx="40" cy="23" rx="3.4" ry="5" transform="rotate(27 40 23)"/></svg>
         </span>
-        <span>VittaPet<span class="store-brand-dot">.</span></span>
+        <span class="store-brand-text">Vitta<span class="store-brand-accent">Pet</span><small>Pet Shop Online</small></span>
       </a>
+      <form class="store-header-search" role="search" action="index.php" method="get" data-store-search-form>
+        <label for="store-header-search-input" class="visually-hidden">Buscar produtos na loja</label>
+        <input id="store-header-search-input" type="search" name="q" placeholder="Buscar produtos para seu pet..." autocomplete="off">
+        <button type="submit" aria-label="Buscar produtos">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
+        </button>
+      </form>
       <div class="store-navlinks">
-        <a href="#produtos">Produtos</a>
-        <a href="#onde-estamos">Onde estamos</a>
+        <a href="rastrear.php">Rastrear pedido</a>
+        <a href="#onde-estamos">Localização</a>
       </div>
       <div class="store-nav-actions">
         <a href="carrinho.php" class="store-cart-link">
@@ -79,6 +87,14 @@ $demoCount = count(array_filter($produtos, static fn($p) => str_starts_with((str
       </div>
     </nav>
   </header>
+  <div class="store-category-nav">
+    <nav class="container store-category-nav-inner" aria-label="Navegação por categorias">
+      <a class="store-category-all" href="#produtos" data-category-pick="">Todas as categorias</a>
+      <?php foreach ($categorias as $cat): ?>
+      <a href="#produtos" data-category-pick="<?=e((string)$cat['nome'])?>"><?=e((string)$cat['nome'])?></a>
+      <?php endforeach; ?>
+    </nav>
+  </div>
 
   <main id="conteudo">
     <div class="container">
@@ -86,10 +102,10 @@ $demoCount = count(array_filter($produtos, static fn($p) => str_starts_with((str
         <div class="row g-0">
           <div class="col-lg-7">
             <div class="store-hero-inner">
-              <span class="store-eyebrow">Cuidado em cada detalhe</span>
-              <h1 id="hero-title">O melhor para quem faz sua vida mais feliz.</h1>
-              <p>Produtos para alimentar, brincar e cuidar de quem está sempre ao seu lado. Escolha com carinho, compre com praticidade.</p>
-              <a href="#produtos" class="store-main-button">Conhecer produtos <span aria-hidden="true">→</span></a>
+              <span class="store-eyebrow">VittaPet · Tudo para seu pet</span>
+              <h1 id="hero-title">Tudo para o bem-estar do seu pet em um só lugar!</h1>
+              <p>Rações, brinquedos, higiene e acessórios para cuidar de quem faz parte da família, com facilidade e segurança.</p>
+              <a href="#produtos" class="store-main-button">Comprar agora <span aria-hidden="true">→</span></a>
             </div>
           </div>
           <div class="col-lg-5">
@@ -108,7 +124,7 @@ $demoCount = count(array_filter($produtos, static fn($p) => str_starts_with((str
                   <circle cx="122" cy="193" r="8" fill="#e7b05d"/>
                 </svg>
               </div>
-              <span class="store-hero-float">Amor que se cuida</span>
+              <span class="store-hero-float">Seu pet merece carinho</span>
             </div>
           </div>
         </div>
@@ -128,11 +144,59 @@ $demoCount = count(array_filter($produtos, static fn($p) => str_starts_with((str
         </div>
       </section>
 
+
+      <?php if ($categorias): ?>
+      <section class="store-showcase" aria-labelledby="showcase-categories">
+        <div class="store-showcase-head">
+          <div><span class="store-section-kicker">Escolha por categoria</span><h2 class="store-section-title" id="showcase-categories">Encontre o que seu pet precisa</h2></div>
+          <div class="store-slider-controls" aria-label="Controles de categorias">
+            <button type="button" data-prev="categories-slider" aria-label="Categorias anteriores">‹</button>
+            <button type="button" data-next="categories-slider" aria-label="Próximas categorias">›</button>
+          </div>
+        </div>
+        <div id="categories-slider" class="store-slider" data-showcase-slider role="region" aria-roledescription="carrossel" aria-label="Categorias da VittaPet" tabindex="0">
+          <?php foreach ($categorias as $cat): ?>
+          <a href="#produtos" class="store-slide" data-category-pick="<?=e((string)$cat['nome'])?>">
+            <span class="store-slide-symbol" aria-hidden="true">✦</span>
+            <strong><?=e((string)$cat['nome'])?></strong>
+            <small>Explorar produtos desta categoria →</small>
+          </a>
+          <?php endforeach; ?>
+        </div>
+        <div class="store-slider-dots" data-dots="categories-slider" aria-label="Selecionar categoria do carrossel"></div>
+      </section>
+      <?php endif; ?>
+      <?php if ($produtos): ?>
+      <section class="store-showcase" aria-labelledby="showcase-products">
+        <div class="store-showcase-head">
+          <div><span class="store-section-kicker">Seleção da loja</span><h2 class="store-section-title" id="showcase-products">Destaques da VittaPet</h2></div>
+          <div class="store-slider-controls" aria-label="Controles dos destaques">
+            <button type="button" data-prev="featured-slider" aria-label="Produtos anteriores">‹</button>
+            <button type="button" data-next="featured-slider" aria-label="Próximos produtos">›</button>
+          </div>
+        </div>
+        <div id="featured-slider" class="store-slider" data-showcase-slider role="region" aria-roledescription="carrossel" aria-label="Produtos em destaque" tabindex="0">
+          <?php foreach (array_slice($produtos, 0, 8) as $featured):
+            $featuredName = str_starts_with((string)$featured['nome'], 'DEMO - ') ? substr((string)$featured['nome'], 7) : (string)$featured['nome'];
+          ?>
+          <a href="#produto-<?= (int)$featured['id'] ?>" class="store-slide">
+            <span class="store-slide-symbol" aria-hidden="true">✦</span>
+            <small><?=e((string)$featured['categoria'])?></small>
+            <strong><?=e($featuredName)?></strong>
+            <span class="store-slide-price"><?=money($featured['preco_venda'])?></span>
+            <small>Ver produto →</small>
+          </a>
+          <?php endforeach; ?>
+        </div>
+        <div class="store-slider-dots" data-dots="featured-slider" aria-label="Selecionar produto do carrossel"></div>
+      </section>
+      <?php endif; ?>
+
       <section id="produtos" class="store-section" aria-labelledby="products-title">
-        <div class="store-section-kicker">Seu pet merece</div>
+        <div class="store-section-kicker">Um catálogo cheio de carinho</div>
         <div class="d-flex align-items-end justify-content-between flex-wrap gap-3">
           <div>
-            <h2 id="products-title" class="store-section-title">Nossa loja</h2>
+            <h2 id="products-title" class="store-section-title">Explore todos os produtos</h2>
             <p class="store-section-description mb-0">Explore alimentos, brinquedos e cuidados para o dia a dia.</p>
           </div>
           <span id="catalog-count" class="store-notice" aria-live="polite"><?=count($produtos)?> produtos disponíveis</span>
@@ -144,7 +208,7 @@ $demoCount = count(array_filter($produtos, static fn($p) => str_starts_with((str
           <label class="store-search">
             <span class="visually-hidden">Buscar produtos</span>
             <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
-            <input id="busca-produtos" type="search" placeholder="Buscar por nome ou produto" autocomplete="off">
+            <input id="busca-produtos" type="search" placeholder="Filtrar produtos por nome" autocomplete="off">
           </label>
           <label for="filtro" class="visually-hidden">Filtrar por categoria</label>
           <select id="filtro" class="form-select" aria-label="Filtrar por categoria">
@@ -161,7 +225,7 @@ $demoCount = count(array_filter($produtos, static fn($p) => str_starts_with((str
             $labelName = $isDemo ? substr((string)$p['nome'], 7) : (string)$p['nome'];
           ?>
           <div class="col-6 col-md-4 col-xl-3 produto" data-category="<?=e($p['categoria'])?>" data-search="<?=e(mb_strtolower($labelName.' '.(string)$p['categoria'].' '.(string)($p['descricao']??'')))?>">
-            <article class="store-product-card">
+            <article id="produto-<?= (int)$p['id'] ?>" class="store-product-card">
               <div class="store-product-media" data-category="<?=e($p['categoria'])?>">
                 <?php if ($p['imagem_path']): ?>
                   <img src="<?=e($p['imagem_path'])?>" alt="Produto <?=e($labelName)?>" loading="lazy">
@@ -251,6 +315,7 @@ $demoCount = count(array_filter($produtos, static fn($p) => str_starts_with((str
     </div>
   </footer>
   <script defer src="assets/js/storefront.js"></script>
+  <script defer src="assets/js/storefront-interactions.js"></script>
   <?php if ($temMapa): ?>
     <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script defer src="assets/js/mapa.js"></script>
