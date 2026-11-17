@@ -1,5 +1,7 @@
 # Homologação formal — VittaPet Store v1
 
+**Versão candidata atual:** `1.0.0-dev.1`; incremento por correção em `VERSION` e `CHANGELOG.md` antes de cada merge. Ver `docs/VERSIONAMENTO.md`.
+
 **Ambiente atual:** código em GitHub, CI PHP/MySQL proposto; **InfinityFree não instalado**. Documento vivo: registrar resultados, não preencher com aprovações hipotéticas.
 
 ## Portões de qualidade
