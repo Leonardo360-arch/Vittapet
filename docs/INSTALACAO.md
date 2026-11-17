@@ -1,7 +1,7 @@
 # Instalação inicial (desenvolvimento)
 
 1. Configure PHP 8 com extensões PDO MySQL e mbstring, MySQL e servidor web.
-2. Crie o banco `vittapet_db` com UTF8MB4 e importe `database/migrations/001_store_base.sql` e, em seguida, `database/migrations/002_pedidos.sql` e `database/migrations/003_financeiro.sql`, depois `database/migrations/004_localizacao_loja.sql` e por último `database/migrations/005_pagamentos_whatsapp.sql` e por último `database/migrations/006_login_tentativas.sql` e `database/migrations/007_frete_fixo.sql` e `database/migrations/008_cobertura_cep.sql`.
+2. Crie o banco `vittapet_db` com UTF8MB4 e importe `database/migrations/001_store_base.sql` e, em seguida, `database/migrations/002_pedidos.sql` e `database/migrations/003_financeiro.sql`, depois `database/migrations/004_localizacao_loja.sql` e por último `database/migrations/005_pagamentos_whatsapp.sql` e por último `database/migrations/006_login_tentativas.sql` e `database/migrations/007_frete_fixo.sql` e `database/migrations/008_cobertura_cep.sql` e `database/migrations/009_auditoria_pagamentos.sql`.
 3. Copie `config/local.example.php` para `config/local.php` e configure credenciais **localmente**. Não commitar `local.php`.
 4. Defina variáveis de ambiente locais `ADMIN_EMAIL`, `ADMIN_NAME` e `ADMIN_PASSWORD` (senha com no mínimo 12 caracteres, sem expor no Git ou histórico do terminal) e execute `php scripts/create_admin.php` para provisionar o login. Em ambiente de hospedagem sem CLI, faça o provisionamento em banco de teste antes de exportar o hash e nunca suba o script para `htdocs`.
 5. Em desenvolvimento, execute `php -S localhost:8000 -t public` a partir da raiz do projeto.
@@ -28,3 +28,6 @@ A partir da migration 007, o checkout exige taxa de frete configurada pelo admin
 
 ## Cobertura de entrega
 Após importar 008, configure no painel a taxa fixa e os prefixos de CEP com cinco dígitos autorizados, como documentado em [Cobertura](COBERTURA_ENTREGA_V1.md). Não há lista padrão de bairros e não é permitido aceitar pedidos enquanto a configuração estiver vazia.
+
+## Estorno de pagamento
+Migration 009 registra data de recebimento e de estorno. O botão administrativo só **registra estorno já feito externamente**, limitado a pedidos não despachados. Consulte [Estornos financeiros](ESTORNOS_FINANCEIRO_V1.md).

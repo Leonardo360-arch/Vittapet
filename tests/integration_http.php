@@ -192,6 +192,24 @@ try {
     check($confirm['status']===200, 'Admin aceita confirmação manual de Pix');
     $pix=orderByToken($pdo,$pixToken);
     check($pix['status_pagamento']==='confirmado' && $pix['status_logistico']==='em_separacao', 'Pix confirmado avança automaticamente para separação');
+    check($pix['pago_em']!==null, 'Confirmação Pix registra data real de recebimento');
+    $refund = http('/admin/pedidos.php', [
+        'csrf'=>$adminCsrf,'id'=>$pix['id'],'acao'=>'registrar_estorno',
+        'observacao_estorno'=>'Pix devolvido pelo banco, protocolo QA-1234'
+    ], 'admin', false, true);
+    check($refund['status']===200, 'Estorno externo registrado pelo administrador');
+    $refunded=orderByToken($pdo,$pixToken);
+    check($refunded['status_pagamento']==='estornado' && $refunded['status_logistico']==='cancelado' && $refunded['estornado_em']!==null, 'Estorno cancela pedido e registra data');
+    check((int)$pdo->query("SELECT estoque_atual FROM produtos WHERE id=$productId")->fetchColumn()===10, 'Estorno antes da expedição restaura estoque');
+    $duplicateRefund = http('/admin/pedidos.php', [
+        'csrf'=>$adminCsrf,'id'=>$pix['id'],'acao'=>'registrar_estorno',
+        'observacao_estorno'=>'Estorno repetido não autorizado'
+    ], 'admin', false, true);
+    check(str_contains($duplicateRefund['body'],'Somente pagamento confirmado pode ser estornado'), 'Estorno duplicado é recusado');
+    check((int)$pdo->query("SELECT estoque_atual FROM produtos WHERE id=$productId")->fetchColumn()===10, 'Estorno duplicado não incrementa estoque novamente');
+    $refundedMov=$pdo->prepare("SELECT COUNT(*) FROM movimentacoes_estoque WHERE pedido_id=? AND tipo='estorno_venda'");
+    $refundedMov->execute([$pix['id']]);
+    check((int)$refundedMov->fetchColumn()===1, 'Estorno registra uma única devolução ao estoque');
 
     $cartAgain=http('/index.php', [], 'cardbuyer');
     $cardCsrf=field($cartAgain['body'],'csrf');
@@ -208,6 +226,14 @@ try {
     }
     http('/admin/pedidos.php', ['csrf'=>$adminCsrf,'id'=>$card['id'],'acao'=>'confirmar_pagamento'], 'admin', false, true);
     check(orderByToken($pdo,$cardToken)['status_pagamento']==='confirmado', 'Cartão confirmado apenas após entrega');
+    $paidCard=orderByToken($pdo,$cardToken);
+    check($paidCard['pago_em']!==null, 'Pagamento na entrega registra data de recebimento');
+    $deliveredRefund=http('/admin/pedidos.php', [
+      'csrf'=>$adminCsrf,'id'=>$paidCard['id'],'acao'=>'registrar_estorno',
+      'observacao_estorno'=>'Tentativa de estorno de pedido entregue'
+    ],'admin',false,true);
+    check(str_contains($deliveredRefund['body'],'exige fluxo de devolução separado'), 'Pedido já entregue não permite estorno simplificado');
+    check(orderByToken($pdo,$cardToken)['status_pagamento']==='confirmado','Tentativa inválida não altera pagamento entregue');
     $history = $pdo->prepare('SELECT COUNT(*) FROM pedido_historico WHERE pedido_id=?');
     $history->execute([$card['id']]);
     check((int)$history->fetchColumn()===4, 'Histórico grava criação e três movimentações logísticas');
@@ -219,6 +245,8 @@ try {
     check((float)$pdo->query("SELECT valor FROM despesas WHERE descricao='Despesa CI'")->fetchColumn()===5.5, 'Despesa persistida no MySQL');
     $dashboard=http('/admin/dashboard.php', [], 'admin');
     check($dashboard['status']===200 && str_contains($dashboard['body'],'Visão geral'), 'Dashboard abre após pedidos e financeiro');
+    check(str_contains($dashboard['body'],'R$ 58,40'), 'Dashboard considera apenas cartão confirmado e exclui Pix estornado da receita');
+    check(!str_contains($dashboard['body'],'data de criação dos pedidos'), 'Dashboard deixa de anunciar data incorreta de criação');
 
     $logoutGet=http('/logout.php', [], 'admin');
     check($logoutGet['status']===405, 'Logout rejeita GET');
