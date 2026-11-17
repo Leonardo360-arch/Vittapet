@@ -1,7 +1,7 @@
 # Política de versionamento da VittaPet Store
 
 ## Identificação atual
-A primeira versão identificada em arquivo é **1.0.0-dev.3**, referência à base de desenvolvimento da Store incluindo a correção de frete configurável. Não é release pública nem significa homologação da loja.
+A primeira versão identificada em arquivo é **1.0.0-dev.4**, referência à base de desenvolvimento da Store incluindo a correção de frete configurável. Não é release pública nem significa homologação da loja.
 
 ## Regras de versão
 - Durante a homologação da primeira entrega: `1.0.0-dev.1`, `1.0.0-dev.2`, `1.0.0-dev.3` etc.; incrementar o sufixo a cada conjunto de correções efetivamente integrado à `main`.
@@ -24,6 +24,7 @@ A primeira versão identificada em arquivo é **1.0.0-dev.3**, referência à ba
 |---|---|---|
 | 1.0.0-dev.1 | Fundamentos da Store, checkout, Pix WhatsApp, mapa, segurança, QA HTTP/MySQL e frete fixo configurável | Candidato de desenvolvimento, dependente de QA |
 | 1.0.0-dev.2 | Filtro administrativo e transacional por prefixos de CEP, testes de cobertura | Integrada na main, CI aprovado |
-| 1.0.0-dev.3 | Registro de estorno manual pré-envio, auditoria temporal e atualização de dashboard | Em homologação, QA e CI pendentes |
+| 1.0.0-dev.3 | Registro de estorno manual pré-envio, auditoria temporal e atualização de dashboard | Integrada na main, CI aprovado |
+| 1.0.0-dev.4 | Concorrência real de estoque, refatoração SRP e pacote de hospedagem allowlist | Em revisão, QA/CI pendentes |
 
 Histórico detalhado: [CHANGELOG.md](../CHANGELOG.md).
