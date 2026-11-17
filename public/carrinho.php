@@ -30,6 +30,8 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
     $st=db()->prepare('SELECT estoque_atual FROM produtos WHERE id=? AND ativo=1');$st->execute([$id]);$product=$st->fetch();
     if(!$product)throw new InvalidArgumentException('Produto não encontrado.');
     if($qty>(int)$product['estoque_atual'])throw new InvalidArgumentException('Estoque insuficiente.');
+    if(($_POST['action']??'')==='add') $qty=(int)($_SESSION['cart'][$id]??0)+$qty;
+    if($qty>(int)$product['estoque_atual'] || $qty>99) throw new InvalidArgumentException('Estoque insuficiente.');
     if($qty===0)unset($_SESSION['cart'][$id]);else $_SESSION['cart'][$id]=$qty;
     if($json){header('Content-Type: application/json; charset=utf-8');echo json_encode(cartState(),JSON_UNESCAPED_UNICODE);exit;}
   } catch(Throwable $ex){
