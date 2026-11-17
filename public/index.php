@@ -166,11 +166,15 @@ $demoCount = count(array_filter($produtos, static fn($p) => str_starts_with((str
                 <?php if ($p['imagem_path']): ?>
                   <img src="<?=e($p['imagem_path'])?>" alt="Produto <?=e($labelName)?>" loading="lazy">
                 <?php else: ?>
-                  <svg viewBox="0 0 96 96" aria-hidden="true">
-                    <path d="M24 64q24-22 48 0M22 52l-6-11m58 11 6-11M20 76q28 12 56 0" stroke-linecap="round"/>
-                    <circle cx="32" cy="38" r="8"/><circle cx="64" cy="38" r="8"/>
-                    <path d="M33 66q15-14 30 0l-15 12Z" stroke-linejoin="round"/>
-                  </svg>
+                  <?php if ($p['categoria'] === 'Rações'): ?>
+                    <svg viewBox="0 0 96 96" aria-hidden="true"><path d="M18 52h60l-8 27H26L18 52Z" stroke-linejoin="round"/><path d="M27 52c0-13 9-23 21-23s21 10 21 23" /><path d="M27 68h42"/><circle cx="39" cy="43" r="3"/><circle cx="54" cy="40" r="3"/></svg>
+                  <?php elseif ($p['categoria'] === 'Brinquedos'): ?>
+                    <svg viewBox="0 0 96 96" aria-hidden="true"><circle cx="48" cy="48" r="30"/><path d="M20 40Q50 30 77 59M38 22q25 24 17 55M20 54l51-25"/></svg>
+                  <?php elseif ($p['categoria'] === 'Acessórios'): ?>
+                    <svg viewBox="0 0 96 96" aria-hidden="true"><path d="M25 22q24-15 46 0v49q-24 16-46 0V22Z" stroke-linejoin="round"/><path d="M25 35q22 9 46 0M25 58q22 9 46 0"/><circle cx="48" cy="47" r="8"/></svg>
+                  <?php else: ?>
+                    <svg viewBox="0 0 96 96" aria-hidden="true"><rect x="28" y="36" width="40" height="43" rx="8"/><path d="M36 36V23h24v13M39 22v-7h18v7M40 59h16M48 48v22" stroke-linecap="round"/><circle cx="72" cy="20" r="6"/><circle cx="20" cy="33" r="4"/></svg>
+                  <?php endif; ?>
                 <?php endif; ?>
                 <?php if ($isDemo): ?><span class="store-demo-tag">DEMO · TESTE</span><?php endif; ?>
                 <span class="store-stock-tag <?= (int)$p['estoque_atual'] === 0 ? 'is-out' : '' ?>"><?= (int)$p['estoque_atual'] === 0 ? 'Esgotado' : 'Disponível' ?></span>
