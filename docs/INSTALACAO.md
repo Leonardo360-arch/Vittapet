@@ -7,4 +7,4 @@
 5. Em desenvolvimento, execute `php -S localhost:8000 -t public` a partir da raiz do projeto.
 6. Acesse `/login.php` para administrar produtos e `/index.php` para visualizar o catálogo.
 
-**Observações:** desenvolvimento inicial do CRUD, sem carrinho, pedidos, dashboard financeiro, duas APIs ou mapa implementados. O login ainda não tem proteção completa contra força bruta; configurar rate-limit antes de implantação pública. A URL e o webroot do InfinityFree exigem teste específico para manter `config/` e `src/` não acessíveis.
+**Observações:** CRUD e carrinho de sessão foram adicionados ao código, ainda sem validação em ambiente executável; checkout, pedidos, dashboard financeiro, duas APIs e mapa continuam pendentes. O login ainda não tem proteção completa contra força bruta; configurar rate-limit antes de implantação pública. A URL e o webroot do InfinityFree exigem teste específico para manter `config/` e `src/` não acessíveis.
