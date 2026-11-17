@@ -30,6 +30,8 @@ O dashboard apresentará dados do MySQL, com receita efetivamente confirmada, de
 - [Documentação técnica detalhada da arquitetura](docs/ARQUITETURA_TECNICA_V1.md)
 - [Matriz de 42 cenários de QA](docs/MATRIZ_TESTES_V1.md)
 - [Critérios formais de homologação](docs/HOMOLOGACAO_V1.md)
+- [Evidência QA: 55 verificações HTTP/MySQL](docs/RELATORIO_QA_EXECUCAO_01.md)
+- [Padrão de código limpo e SOLID](docs/PADRAO_CODIGO_V1.md)
 - [Plano pós-entrega com datas](docs/PLANO_POS_ENTREGA.md)
 - [Identidade visual, UX e CSS](docs/DESIGN_SYSTEM.md)
 - [Roadmap e etapas de desenvolvimento](docs/ROADMAP.md)
