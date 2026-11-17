@@ -2,6 +2,14 @@
 
 Este histórico identifica versões **planejadas/documentadas** e versões **lançadas**. Não significa que o sistema já está implementado.
 
+## [1.0.0-dev.8] — Dashboard administrativo e identidade visual (17/11/2026)
+- Criado `includes/admin_header.php` como componente de navegação autenticada reutilizável, inicialmente aplicado ao dashboard.
+- Criado `public/assets/css/admin.css` com layout responsivo, foco visível, tokens de identidade visual e estados vazios.
+- Dashboard recebeu hierarquia de sete KPIs, filtros rápidos (Hoje, 7 e 30 dias), barras acessíveis de receita por dia e tabela detalhada para conferência.
+- Consultas SQL e regras de `pago_em`, estorno, CMV e despesas foram preservadas, sem alterar o cálculo financeiro.
+- QA Playwright acrescenta cenário de layout e navegação administrativa nas três resoluções emuladas.
+- Ainda pendente: aplicar cabeçalho compartilhado às demais páginas, avaliar screenshots reais e homologar APIs/dispositivos físicos.
+
 ## [1.0.0-dev.7] — Ambiente local de homologação (17/11/2026)
 - Ambiente Docker Compose para Windows/WSL2: PHP 8.2/Apache, MySQL 8 e phpMyAdmin, isolados em localhost.
 - Importação das migrations 001–009 em banco novo, provisionamento administrativo guiado sem senha no Git e diagnóstico sem alteração de dados.
