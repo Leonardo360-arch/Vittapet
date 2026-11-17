@@ -3,6 +3,7 @@
 Este histórico identifica versões **planejadas/documentadas** e versões **lançadas**. Não significa que o sistema já está implementado.
 
 ## [1.0.0] — Em desenvolvimento (17/11/2026)
+- Fluxo Pix antecipado via link de WhatsApp com mensagem preenchida e confirmação manual, e débito/crédito na entrega, sem status logístico de espera por pagamento. Migration 005, configuração do número, checkout, rastreio e painel adaptados. Revisão estática QA 04; testes pendentes.
 - Etapa de localização (em branch, pendente de validação em navegador): migration 004 de configurações, painel administrativo com consulta pontual à API JSON de geocodificação, persistência das coordenadas, mapa Leaflet na homepage e links de rota; nenhum endereço fictício publicado.
 - Adicionado em branch de recurso: migration 003 de despesas, dashboard de indicadores, registro financeiro e orientação/roteamento para InfinityFree gratuito; revisão de execução/hospedagem pendente.
 **Produto:** VittaPet Store, sem serviços.
