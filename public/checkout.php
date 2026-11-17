@@ -1,13 +1,17 @@
 <?php
 declare(strict_types=1);
 require dirname(__DIR__) . '/includes/bootstrap.php';
+require_once dirname(__DIR__) . '/includes/delivery_coverage.php';
 
 $error = null;
 $freteConfigurado = false;
+$coberturaConfigurada = false;
 $freteExibido = null;
 try {
-    $freteExibido = db()->query('SELECT frete_fixo FROM configuracoes_loja WHERE id=1')->fetchColumn();
-    $freteConfigurado = $freteExibido !== false && $freteExibido !== null;
+    $configuracao = db()->query('SELECT frete_fixo, cep_prefixos_entrega FROM configuracoes_loja WHERE id=1')->fetch();
+    $freteExibido = $configuracao['frete_fixo'] ?? null;
+    $freteConfigurado = $freteExibido !== null;
+    $coberturaConfigurada = !empty($configuracao['cep_prefixos_entrega']);
 } catch (Throwable $exception) {
     error_log('Falha ao obter frete: ' . $exception->getMessage());
 }
@@ -38,9 +42,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $pdo = db();
         $pdo->beginTransaction();
-        $shipping = $pdo->query('SELECT frete_fixo FROM configuracoes_loja WHERE id=1 FOR UPDATE')->fetchColumn();
-        if ($shipping === false || $shipping === null) {
+        $delivery = $pdo->query('SELECT frete_fixo, cep_prefixos_entrega FROM configuracoes_loja WHERE id=1 FOR UPDATE')->fetch();
+        $shipping = $delivery['frete_fixo'] ?? null;
+        if ($shipping === null) {
             throw new InvalidArgumentException('Entrega ainda não configurada. Entre em contato com a loja.');
+        }
+        if (!deliveryZipSupported($values['cep'], $delivery['cep_prefixos_entrega'] ?? null)) {
+            throw new InvalidArgumentException('CEP fora da área de entrega configurada pela loja.');
         }
         $shippingCents = (int)round((float)$shipping * 100);
         $ids = array_map('intval',array_keys($cart));
@@ -102,8 +110,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <title>Checkout — VittaPet</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"><link href="assets/css/tokens.css" rel="stylesheet"></head><body>
 <nav class="navbar border-bottom"><div class="container"><a class="navbar-brand" href="index.php">VittaPet Store</a><a href="carrinho.php">Voltar ao carrinho</a></div></nav>
 <main class="container py-4" style="max-width:820px"><h1 class="h3 fw-bold">Finalizar pedido</h1>
-<p class="text-muted">No Pix, você será encaminhado para solicitar a chave pelo WhatsApp após registrar o pedido. Para débito ou crédito, o pagamento será realizado na entrega. O frete é calculado no servidor com a taxa fixa definida pelo administrador. Entregas fora da área atendida ainda precisam de validação manual pela loja.</p>
-<?php if(!$freteConfigurado):?><div class="alert alert-warning" role="alert">Pedidos temporariamente indisponíveis: configure o frete no painel da loja.</div><?php else: ?><p class="fw-semibold">Taxa de entrega: <?=money($freteExibido)?></p><?php endif;?>
+<p class="text-muted">No Pix, você será encaminhado para solicitar a chave pelo WhatsApp após registrar o pedido. Para débito ou crédito, o pagamento será realizado na entrega. O frete é calculado no servidor com a taxa fixa definida pelo administrador. O sistema verifica o prefixo do CEP autorizado pela loja. Confira os dados do endereço antes de concluir.</p>
+<?php if(!$freteConfigurado || !$coberturaConfigurada):?><div class="alert alert-warning" role="alert">Pedidos temporariamente indisponíveis: configure frete e área de entrega no painel da loja.</div><?php else: ?><p class="fw-semibold">Taxa de entrega: <?=money($freteExibido)?></p><?php endif;?>
 <?php if($error):?><div class="alert alert-danger"><?=e($error)?></div><?php endif;?>
 <form method="post" class="row g-3" id="checkout"><input type="hidden" name="csrf" value="<?=e(csrf())?>"><input type="hidden" name="nonce" value="<?=e($checkoutNonce)?>">
 <h2 class="h5 mt-4">Seus dados</h2>
@@ -114,7 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <?php endforeach;?><div id="cep-status" class="small text-muted" role="status"></div>
 <h2 class="h5 mt-4">Pagamento</h2><div class="col-12"><label class="form-label" for="metodo">Método</label><select id="metodo" name="metodo" class="form-select"><option value="pix_manual">Pix antecipado — solicitar chave pelo WhatsApp</option><option value="debito_entrega">Débito na entrega</option><option value="credito_entrega">Crédito na entrega</option></select></div>
 <div class="col-12"><p id="payment-hint" class="small text-muted" aria-live="polite">Pix: aguarde a confirmação manual do lojista antes da separação.</p></div>
-<div class="col-12"><button type="submit" class="btn btn-primary btn-lg" <?=(empty($cart)||!$freteConfigurado)?'disabled':''?>>Registrar pedido</button></div></form>
+<div class="col-12"><button type="submit" class="btn btn-primary btn-lg" <?=(empty($cart)||!$freteConfigurado||!$coberturaConfigurada)?'disabled':''?>>Registrar pedido</button></div></form>
 </main>
 <script>
 const cep=document.getElementById('cep'), status=document.getElementById('cep-status');
