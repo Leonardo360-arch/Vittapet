@@ -124,3 +124,30 @@ test('dashboard administrativo mantém KPIs, navegação e responsividade', asyn
   await expect(page).toHaveURL(/inicio=.*fim=/);
   await expect(page.getByRole('heading',{name:'Visão geral'})).toBeVisible();
 });
+
+
+test('vitrine redesenhada: admin no rodapé, busca e botões de produto', async ({page}) => {
+  await page.goto('/index.php');
+  const header = page.locator('.store-header');
+  await expect(header.getByRole('link', {name:/Carrinho/})).toBeVisible();
+  await expect(header.getByRole('link', {name:'Produtos'})).toBeVisible();
+  await expect(header.getByRole('link', {name:'Área administrativa'})).toHaveCount(0);
+  await expect(page.locator('.store-footer-bottom').getByRole('link', {name:'Área administrativa'}))
+    .toHaveAttribute('href', 'login.php');
+  await expect(page.locator('.store-product-card')).not.toHaveCount(0);
+  await expect(page.locator('.store-add-button').first()).toBeVisible();
+  await expect(page.locator('#busca-produtos')).toBeVisible();
+
+  const first = page.locator('.produto').first();
+  const category = await first.getAttribute('data-category');
+  await page.locator('#filtro').selectOption({label:category});
+  await expect(page.locator('.produto:not([hidden])').first()).toBeVisible();
+  await page.locator('#busca-produtos').fill('zzzz-nome-inexistente-zzzz');
+  await expect(page.locator('.produto:not([hidden])')).toHaveCount(0);
+  await expect(page.locator('#catalog-empty')).toBeVisible();
+  await page.locator('#busca-produtos').fill('');
+  await expect(page.locator('#catalog-empty')).toBeHidden();
+  await expect.poll(async () => page.evaluate(
+    () => document.documentElement.scrollWidth <= innerWidth + 2
+  )).toBe(true);
+});
