@@ -2,13 +2,13 @@
 
 Este histórico identifica versões **planejadas/documentadas** e versões **lançadas**. Não significa que o sistema já está implementado.
 
-## [1.0.0] — Em especificação (17/11/2026)
+## [1.0.0] — Em desenvolvimento (17/11/2026)
 **Produto:** VittaPet Store, sem serviços.
 - Escopo definido: catálogo, CRUD MySQL, carrinho reativo, checkout, pedidos, embalagem e entrega, administração, estoque, financeiro e dashboard.
 - Definidas duas APIs da primeira versão: ViaCEP e geocodificação de endereço da loja com mapa.
 - Identidade proposta: verde/turquesa/laranja, Poppins e Inter, controles slim.
 - Documentação funcional, técnica, visual e critérios de aceite organizados.
-- **Código executável e publicação:** pendentes. Não existe release 1.0.0 final validada.
+- **Implementação inicial adicionada à develop:** schema MySQL de usuários/categorias/produtos, PDO, login administrativo, CRUD, catálogo e carrinho de sessão com atualização por Fetch. **Não testados em execução nem implantados.** Checkout, histórico de pedidos, financeiro, duas APIs e mapa ainda pendentes. Não existe release 1.0.0 final validada.
 
 ## [2.0.0] — Planejamento futuro
 - Integração de banho/tosa, clínica, pets/tutores, Portal do Tutor, VittaBot, mural, fidelidade, concursos e APIs adicionais.
