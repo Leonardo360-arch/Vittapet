@@ -1,6 +1,6 @@
 # VittaPet Store
 
-**Versão atual em homologação:** `1.0.0-dev.2` (consulte [`VERSION`](VERSION)). Sem release final publicada.
+**Versão atual em homologação:** `1.0.0-dev.3` (consulte [`VERSION`](VERSION)). Sem release final publicada.
 
 **Projeto:** loja virtual de produtos pet em PHP 8, MySQL, HTML5, CSS3, Bootstrap 5 e JavaScript. O código será preparado para evoluir, no futuro, para o VittaPet Ecosystem.
 
@@ -31,6 +31,8 @@ O dashboard apresentará dados do MySQL, com receita efetivamente confirmada, de
 - [Especificação completa da v1.0](docs/VERSAO_1_0.md)
 - [Regra de frete fixa e testes](docs/FRETE_V1.md)
 - [Cobertura por prefixos de CEP](docs/COBERTURA_ENTREGA_V1.md)
+- [Estornos manuais e datas de pagamento](docs/ESTORNOS_FINANCEIRO_V1.md)
+- [QA revisão 06 de integridade financeira](docs/QA_REVISAO_06.md)
 - [Documentação técnica detalhada da arquitetura](docs/ARQUITETURA_TECNICA_V1.md)
 - [Matriz de 42 cenários de QA](docs/MATRIZ_TESTES_V1.md)
 - [Critérios formais de homologação](docs/HOMOLOGACAO_V1.md)
