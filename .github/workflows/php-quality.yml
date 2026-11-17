@@ -101,7 +101,7 @@ jobs:
           exit 1
       - name: Testes integrados HTTP e MySQL
         run: php tests/integration_http.php
-      - name: Corrida real: duas conexões disputam última unidade
+      - name: 'Corrida real: duas conexões disputam última unidade'
         run: php tests/concurrency_stock.php
       - name: Conferir pacote limpo para hospedagem
         shell: bash
