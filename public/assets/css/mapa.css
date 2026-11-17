@@ -1,0 +1,11 @@
+/* VittaPet Store — localização: layout mobile-first. */
+.store-location { background:var(--color-bg,#fff7ed); }
+.store-location .location-grid { display:grid;grid-template-columns:minmax(0,1fr);gap:1.25rem;align-items:stretch; }
+.store-location .map-frame { min-height:270px;height:300px;max-height:380px;border:1px solid var(--color-border,#e5e7eb);border-radius:16px;overflow:hidden;background:#e8eee9; }
+.store-location .map-frame:focus-visible {outline:3px solid var(--color-primary,#0f766e);outline-offset:2px;}
+.store-location .location-panel { display:flex;flex-direction:column;justify-content:center;gap:12px; }
+.store-location .location-panel h2 {font-family:Poppins,system-ui,sans-serif;font-weight:700;}
+.store-location .location-address {line-height:1.65;white-space:normal;overflow-wrap:anywhere;}
+.store-location .map-status {font-size:.875rem;line-height:1.45;}
+.store-location .location-links {display:flex;gap:.65rem;flex-wrap:wrap;}
+@media(min-width:900px) { .store-location .location-grid {grid-template-columns:minmax(260px,.85fr) minmax(360px,1.4fr);} .store-location .map-frame {height:320px;} }
