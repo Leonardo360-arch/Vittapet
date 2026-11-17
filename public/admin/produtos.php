@@ -38,7 +38,7 @@ try {
 } catch(Throwable $ex){error_log($ex->getMessage());$categorias=[];$produtos=[];$error='Erro ao carregar os dados.';}
 ?><!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Produtos — VittaPet</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"><link href="../assets/css/tokens.css" rel="stylesheet"></head><body>
 <nav class="navbar border-bottom"><div class="container"><a class="navbar-brand" href="../index.php">VittaPet Store</a><a href="../logout.php">Sair</a></div></nav>
-<main class="container py-4"><h1 class="h3 fw-bold">Gestão de produtos</h1><p class="text-muted">Cadastro, edição, consulta e desativação.</p>
+<main class="container py-4"><div class="d-flex flex-wrap gap-3 mb-3"><a href="dashboard.php">Dashboard</a><a href="pedidos.php">Pedidos</a><a href="financeiro.php">Financeiro</a></div><h1 class="h3 fw-bold">Gestão de produtos</h1><p class="text-muted">Cadastro, edição, consulta e desativação.</p>
 <?php if($error):?><div class="alert alert-danger"><?=e($error)?></div><?php endif;?><?php if($success):?><div class="alert alert-success"><?=e($success)?></div><?php endif;?>
 <div class="card p-3 mb-4"><h2 class="h5">Novo produto / editar</h2><form method="post" id="product-form" class="row g-3"><input type="hidden" name="csrf" value="<?=e(csrf())?>"><input type="hidden" name="id" id="id"><input type="hidden" name="action" id="action" value="create">
 <div class="col-md-6"><label for="nome" class="form-label">Nome</label><input class="form-control" required maxlength="180" name="nome" id="nome"></div>
