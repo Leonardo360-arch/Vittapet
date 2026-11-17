@@ -2,7 +2,7 @@ name: VittaPet 1.0 - Quality Gate
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, fix/frete-configuravel-v1]
   push:
     branches: [main]
 
