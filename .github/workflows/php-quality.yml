@@ -32,8 +32,9 @@ jobs:
         run: |
           set -euo pipefail
           test -f VERSION
+          php scripts/check_docs.php
           grep -Eq '^1[.]0[.]0-dev[.][0-9]+$' VERSION || { echo 'VERSION inválida'; exit 1; }
-          for file in config/database.php includes/bootstrap.php public/index.php public/login.php public/admin/produtos.php public/checkout.php public/carrinho.php public/rastrear.php database/migrations/006_login_tentativas.sql database/migrations/007_frete_fixo.sql database/migrations/008_cobertura_cep.sql database/migrations/009_auditoria_pagamentos.sql includes/delivery_coverage.php includes/order_inventory.php tests/integration_http.php tests/concurrency_stock.php tests/seed_browser.php scripts/build_deploy.php package.json playwright.config.cjs tests/browser/store.spec.cjs; do
+          for file in config/database.php includes/bootstrap.php public/index.php public/login.php public/admin/produtos.php public/checkout.php public/carrinho.php public/rastrear.php database/migrations/006_login_tentativas.sql database/migrations/007_frete_fixo.sql database/migrations/008_cobertura_cep.sql database/migrations/009_auditoria_pagamentos.sql includes/delivery_coverage.php includes/order_inventory.php tests/integration_http.php tests/concurrency_stock.php tests/seed_browser.php scripts/build_deploy.php scripts/check_docs.php package.json playwright.config.cjs tests/browser/store.spec.cjs; do
             test -f "$file" || { echo "Arquivo ausente: $file"; exit 1; }
           done
           if [ -f config/local.php ] || [ -f .env ]; then
