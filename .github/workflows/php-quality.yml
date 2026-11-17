@@ -31,6 +31,78 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          test -f VERSION && grep -Eq '^1\\.0\\.0-dev\\.[0-9]+ includes/bootstrap.php public/index.php public/login.php public/admin/produtos.php public/checkout.php public/carrinho.php public/rastrear.php database/migrations/006_login_tentativas.sql tests/integration_http.php; do
+            test -f "$file" || { echo "Arquivo ausente: $file"; exit 1; }
+          done
+          if [ -f config/local.php ] || [ -f .env ]; then
+            echo 'Credenciais de ambiente versionadas!'
+            exit 1
+          fi
+
+  mysql-http:
+    needs: php-lint
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: ci_root_only
+          MYSQL_DATABASE: vittapet_ci
+          MYSQL_USER: vittapet_ci
+          MYSQL_PASSWORD: ci_password_only
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -p$MYSQL_ROOT_PASSWORD"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=12
+    env:
+      DB_HOST: 127.0.0.1
+      DB_NAME: vittapet_ci
+      DB_USER: vittapet_ci
+      DB_PASS: ci_password_only
+      ADMIN_EMAIL: qa-admin@example.invalid
+      ADMIN_NAME: Administrador de QA
+      ADMIN_PASSWORD: CI-password-test-2026!
+      TEST_BASE_URL: http://127.0.0.1:8000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo_mysql, mbstring, curl
+          coverage: none
+      - name: Instalar cliente MySQL
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq default-mysql-client
+      - name: Migrar schema em banco efêmero
+        shell: bash
+        run: |
+          set -euo pipefail
+          for migration in database/migrations/0*.sql; do
+            echo "Importando $migration"
+            MYSQL_PWD="$DB_PASS" mysql --protocol=tcp -h "$DB_HOST" -u "$DB_USER" "$DB_NAME" < "$migration"
+          done
+      - name: Provisionar administrador de teste
+        run: php scripts/create_admin.php
+      - name: Servidor PHP local
+        shell: bash
+        run: |
+          set -euo pipefail
+          php -S 127.0.0.1:8000 -t public > /tmp/vittapet-php.log 2>&1 &
+          echo $! > /tmp/vittapet-php.pid
+          for i in $(seq 1 25); do
+            if curl -fsS http://127.0.0.1:8000/login.php >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/vittapet-php.log
+          exit 1
+      - name: Testes integrados HTTP e MySQL
+        run: php tests/integration_http.php
+      - name: Log do PHP em falha
+        if: failure()
+        run: cat /tmp/vittapet-php.log || true
+ VERSION || { echo 'VERSION deve identificar uma versão de homologação válida.'; exit 1; }
           for file in config/database.php includes/bootstrap.php public/index.php public/login.php public/admin/produtos.php public/checkout.php public/carrinho.php public/rastrear.php database/migrations/006_login_tentativas.sql tests/integration_http.php; do
             test -f "$file" || { echo "Arquivo ausente: $file"; exit 1; }
           done
