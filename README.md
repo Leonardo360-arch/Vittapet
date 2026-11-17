@@ -27,6 +27,10 @@ O dashboard apresentará dados do MySQL, com receita efetivamente confirmada, de
 
 ## Documentação oficial
 - [Especificação completa da v1.0](docs/VERSAO_1_0.md)
+- [Documentação técnica detalhada da arquitetura](docs/ARQUITETURA_TECNICA_V1.md)
+- [Matriz de 42 cenários de QA](docs/MATRIZ_TESTES_V1.md)
+- [Critérios formais de homologação](docs/HOMOLOGACAO_V1.md)
+- [Plano pós-entrega com datas](docs/PLANO_POS_ENTREGA.md)
 - [Identidade visual, UX e CSS](docs/DESIGN_SYSTEM.md)
 - [Roadmap e etapas de desenvolvimento](docs/ROADMAP.md)
 - [Backlog da versão 2.0](docs/VERSAO_2_0_BACKLOG.md)
@@ -37,6 +41,9 @@ O dashboard apresentará dados do MySQL, com receita efetivamente confirmada, de
 
 ## Arquitetura planejada
 Monólito modular PHP com PDO/MySQL e camadas de controllers, services e repositories; migrations versionadas, testes, configuração privada fora do webroot e apenas `public/` acessível pelo servidor. A configuração de hospedagem InfinityFree deve ser testada sem expor segredos.
+
+## Testes automatizados
+GitHub Actions executa lint PHP e testes HTTP contra MySQL 8 isolado nos PRs para main. Os testes manuais de APIs, celular, concorrência e InfinityFree continuam obrigatórios e são registrados na matriz de QA.
 
 ## Controle de progresso
 **Situação em 17/11/2026:** fundação, CRUD, carrinho, checkout inicial, pedidos e rastreio **enviados para a branch `develop`**. **Ainda não foram validados em execução com MySQL e não há publicação concluída.** Consulte a revisão de QA para bloqueadores. A branch `main` será atualizada mediante revisão e aprovação da entrega, sem confundir documentação aprovada com release funcional.
