@@ -1,6 +1,6 @@
 # VittaPet Store — Especificação funcional e técnica v1.0
 
-**Documento:** 1.0.0 | **Data:** 17/11/2026 | **Estado:** especificação aprovada, implementação pendente | **Entrega DW2:** 23/11/2026
+**Documento:** 1.0.0 | **Data:** 17/11/2026 | **Estado:** implementação incremental, homologação em andamento e entrega DW2 em 23/11/2026. A documentação não prova que os requisitos foram testados ou publicados.
 
 ## 1. Identificação e objetivo
 Projeto acadêmico de Desenvolvimento Web II: uma **loja virtual de produtos pet**, com catálogo, CRUD em MySQL, carrinho reativo, checkout, controle de pedidos, expedição, dashboard financeiro, duas APIs e hospedagem InfinityFree. A v1.0 constitui a base reaproveitável para o ecossistema de serviços da v2.0.
@@ -137,3 +137,11 @@ Responsivo/mobile-first; mensagens acessíveis; integridade do checkout; desempe
 
 ## 15. Prioridade acadêmica e riscos
 Pontuação do exercício: CRUD 2,5; originalidade/interface 2,0; documentação 2,0; hospedagem 2,0; duas APIs 1,5. A loja completa é um escopo ampliado para o prazo de 23/11; o gestor deve proteger os cinco critérios avaliativos antes de otimizações do dashboard. APIs, frete e meios de pagamento não devem ser declarados funcionais sem execução e validação. A v1.0 não estará lançada apenas porque o documento tem número de versão.
+
+## Complementos normativos atualizados
+- [Documentação técnica da implementação atual](ARQUITETURA_TECNICA_V1.md)
+- [Matriz de testes e evidências](MATRIZ_TESTES_V1.md)
+- [Condições objetivas para qualidade](HOMOLOGACAO_V1.md)
+- [Planejamento da versão futura com datas após a entrega](PLANO_POS_ENTREGA.md)
+
+**Atenção:** o texto acima especifica o produto-alvo; a implementação atual inclui checkout Pix via WhatsApp e débito/crédito na entrega, com validação manual, e permanece sujeita a testes. O escopo da versão 2 não entra na entrega acadêmica.
