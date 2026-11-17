@@ -45,6 +45,43 @@ jobs:
             exit 1
           fi
 
+  local-smoke:
+    needs: php-lint
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inicializar o ambiente Docker do localhost
+        run: docker compose -f compose.local.yaml up -d --build
+      - name: Diagnóstico real via PHP e MySQL no Docker
+        run: docker compose -f compose.local.yaml exec -T app php scripts/check_local.php
+      - name: Importação e seed DEMO opcionais
+        run: docker compose -f compose.local.yaml exec -T app php scripts/seed_local.php
+      - name: Provisionar conta QA no PHP do Docker
+        env:
+          ADMIN_EMAIL: docker-qa@example.invalid
+          ADMIN_NAME: Admin QA Docker
+          ADMIN_PASSWORD: only-local-CI-password-2026
+        run: docker compose -f compose.local.yaml exec -T -e ADMIN_EMAIL -e ADMIN_NAME -e ADMIN_PASSWORD app php scripts/create_admin.php
+      - name: HTTP localhost e vitrine com produto DEMO
+        shell: bash
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8080/login.php >/dev/null; then break; fi
+            sleep 2
+          done
+          curl -fsS http://127.0.0.1:8080/login.php >/dev/null
+          curl -fsS http://127.0.0.1:8080/index.php | grep -F 'DEMO -'
+          curl -fsS http://127.0.0.1:8081/ >/dev/null
+      - name: Inspecionar logs ao falhar
+        if: failure()
+        run: docker compose -f compose.local.yaml logs --tail=120
+      - name: Encerrar containers efêmeros do runner
+        if: always()
+        run: docker compose -f compose.local.yaml down --remove-orphans
+
   mysql-http:
     needs: php-lint
     runs-on: ubuntu-24.04
