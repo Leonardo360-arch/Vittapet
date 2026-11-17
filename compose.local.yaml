@@ -23,14 +23,15 @@ services:
 
   app:
     build:
-      context: .
-      dockerfile: docker/Dockerfile.local
+      context: ./docker
+      dockerfile: Dockerfile.local
     restart: unless-stopped
     depends_on:
       db:
         condition: service_healthy
     working_dir: /var/www/html
     environment:
+      APP_ENV: local
       DB_HOST: db
       DB_NAME: vittapet_db
       DB_USER: vittapet_local
