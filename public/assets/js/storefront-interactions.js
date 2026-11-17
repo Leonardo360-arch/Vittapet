@@ -46,3 +46,27 @@
     });
   }
 })();
+
+/* Header search shares the already-tested catalog filter; never alters server commerce logic. */
+(() => {
+  const form=document.querySelector('[data-store-search-form]');
+  const headerInput=document.getElementById('store-header-search-input');
+  const catalogInput=document.getElementById('busca-produtos');
+  if(!form||!headerInput||!catalogInput)return;
+  const params=new URLSearchParams(window.location.search);
+  const initial=(params.get('q')||'').trim().slice(0,120);
+  if(initial){
+    headerInput.value=initial;
+    catalogInput.value=initial;
+    catalogInput.dispatchEvent(new Event('input',{bubbles:true}));
+  }
+  form.addEventListener('submit',event=>{
+    event.preventDefault();
+    const query=headerInput.value.trim();
+    const filter=document.getElementById('filtro');
+    if(filter){filter.value='';filter.dispatchEvent(new Event('change',{bubbles:true}));}
+    catalogInput.value=query;
+    catalogInput.dispatchEvent(new Event('input',{bubbles:true}));
+    document.getElementById('produtos')?.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
+  });
+})();
