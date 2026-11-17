@@ -1,5 +1,5 @@
 # VittaPet Store — Documentação técnica oficial v1.0
-**Edição:** 1.0 — 17/11/2026  
+**Edição:** 1.0.0-dev.6 — 17/11/2026  
 **Repositório:** `Leonardo360-arch/Vittapet`  
 **Entrega acadêmica:** 23/11/2026  
 **Estado:** implementação incremental; a liberação depende de homologação documentada.
