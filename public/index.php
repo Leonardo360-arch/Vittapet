@@ -58,19 +58,25 @@ $demoCount = count(array_filter($produtos, static fn($p) => str_starts_with((str
 </head>
 <body class="storefront">
   <a class="visually-hidden-focusable position-absolute bg-white px-3 py-2" href="#conteudo">Pular para o conteúdo</a>
-  <div class="store-topline"><div class="container">Um espaço pensado com carinho para cães, gatos e seus tutores</div></div>
+  <div class="store-topline"><div class="container">Cuidado para cada fase da vida do seu pet <span aria-hidden="true">•</span> Escolha com carinho, compre com praticidade</div></div>
   <header class="store-header">
     <nav class="container store-nav" aria-label="Navegação da loja">
       <a href="index.php" class="store-brand" aria-label="VittaPet Store, início">
         <span class="store-brand-logo" aria-hidden="true">
           <svg viewBox="0 0 48 48"><ellipse cx="24" cy="31" rx="13" ry="10" transform="rotate(-8 24 31)"/><ellipse cx="11" cy="17" rx="4.1" ry="6" transform="rotate(-22 11 17)"/><ellipse cx="21" cy="12" rx="4.3" ry="6" transform="rotate(-8 21 12)"/><ellipse cx="32" cy="14" rx="4.1" ry="6" transform="rotate(14 32 14)"/><ellipse cx="40" cy="23" rx="3.4" ry="5" transform="rotate(27 40 23)"/></svg>
         </span>
-        <span>VittaPet<span class="store-brand-dot">.</span></span>
+        <span class="store-brand-text">Vitta<span class="store-brand-accent">Pet</span><small>Pet Shop Online</small></span>
       </a>
+      <form class="store-header-search" role="search" action="index.php" method="get" data-store-search-form>
+        <label for="store-header-search-input" class="visually-hidden">Buscar produtos na loja</label>
+        <input id="store-header-search-input" type="search" name="q" placeholder="Buscar produtos para seu pet..." autocomplete="off">
+        <button type="submit" aria-label="Buscar produtos">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
+        </button>
+      </form>
       <div class="store-navlinks">
-        <a href="#produtos">Produtos</a>
-        <a href="#onde-estamos">Onde estamos</a>
         <a href="rastrear.php">Rastrear pedido</a>
+        <a href="#onde-estamos">Localização</a>
       </div>
       <div class="store-nav-actions">
         <a href="carrinho.php" class="store-cart-link">
@@ -81,6 +87,14 @@ $demoCount = count(array_filter($produtos, static fn($p) => str_starts_with((str
       </div>
     </nav>
   </header>
+  <div class="store-category-nav">
+    <nav class="container store-category-nav-inner" aria-label="Navegação por categorias">
+      <a class="store-category-all" href="#produtos" data-category-pick="">Todas as categorias</a>
+      <?php foreach ($categorias as $cat): ?>
+      <a href="#produtos" data-category-pick="<?=e((string)$cat['nome'])?>"><?=e((string)$cat['nome'])?></a>
+      <?php endforeach; ?>
+    </nav>
+  </div>
 
   <main id="conteudo">
     <div class="container">
@@ -88,10 +102,10 @@ $demoCount = count(array_filter($produtos, static fn($p) => str_starts_with((str
         <div class="row g-0">
           <div class="col-lg-7">
             <div class="store-hero-inner">
-              <span class="store-eyebrow">Cuidado em cada detalhe</span>
-              <h1 id="hero-title">O melhor para quem faz sua vida mais feliz.</h1>
-              <p>Produtos para alimentar, brincar e cuidar de quem está sempre ao seu lado. Escolha com carinho, compre com praticidade.</p>
-              <a href="#produtos" class="store-main-button">Conhecer produtos <span aria-hidden="true">→</span></a>
+              <span class="store-eyebrow">VittaPet · Tudo para seu pet</span>
+              <h1 id="hero-title">Tudo para o bem-estar do seu pet em um só lugar!</h1>
+              <p>Rações, brinquedos, higiene e acessórios para cuidar de quem faz parte da família, com facilidade e segurança.</p>
+              <a href="#produtos" class="store-main-button">Comprar agora <span aria-hidden="true">→</span></a>
             </div>
           </div>
           <div class="col-lg-5">
@@ -110,7 +124,7 @@ $demoCount = count(array_filter($produtos, static fn($p) => str_starts_with((str
                   <circle cx="122" cy="193" r="8" fill="#e7b05d"/>
                 </svg>
               </div>
-              <span class="store-hero-float">Amor que se cuida</span>
+              <span class="store-hero-float">Seu pet merece carinho</span>
             </div>
           </div>
         </div>
@@ -179,10 +193,10 @@ $demoCount = count(array_filter($produtos, static fn($p) => str_starts_with((str
       <?php endif; ?>
 
       <section id="produtos" class="store-section" aria-labelledby="products-title">
-        <div class="store-section-kicker">Seu pet merece</div>
+        <div class="store-section-kicker">Um catálogo cheio de carinho</div>
         <div class="d-flex align-items-end justify-content-between flex-wrap gap-3">
           <div>
-            <h2 id="products-title" class="store-section-title">Nossa loja</h2>
+            <h2 id="products-title" class="store-section-title">Explore todos os produtos</h2>
             <p class="store-section-description mb-0">Explore alimentos, brinquedos e cuidados para o dia a dia.</p>
           </div>
           <span id="catalog-count" class="store-notice" aria-live="polite"><?=count($produtos)?> produtos disponíveis</span>
@@ -194,7 +208,7 @@ $demoCount = count(array_filter($produtos, static fn($p) => str_starts_with((str
           <label class="store-search">
             <span class="visually-hidden">Buscar produtos</span>
             <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
-            <input id="busca-produtos" type="search" placeholder="Buscar por nome ou produto" autocomplete="off">
+            <input id="busca-produtos" type="search" placeholder="Filtrar produtos por nome" autocomplete="off">
           </label>
           <label for="filtro" class="visually-hidden">Filtrar por categoria</label>
           <select id="filtro" class="form-select" aria-label="Filtrar por categoria">
