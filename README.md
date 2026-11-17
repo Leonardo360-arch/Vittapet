@@ -32,6 +32,7 @@ O dashboard apresentará dados do MySQL, com receita efetivamente confirmada, de
 - [Backlog da versão 2.0](docs/VERSAO_2_0_BACKLOG.md)
 - [Histórico e controle de versões](CHANGELOG.md)
 - [QA — Revisão técnica 01](docs/QA_REVISAO_01.md)
+- [QA — Segurança e preparação de homologação](docs/QA_REVISAO_05.md)
 - [Instalação local](docs/INSTALACAO.md)
 
 ## Arquitetura planejada

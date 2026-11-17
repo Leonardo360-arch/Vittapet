@@ -1,0 +1,39 @@
+name: PHP Quality Gate
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  php-static:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verificar versao de PHP
+        run: php -v
+      - name: Verificar sintaxe de todos os arquivos PHP
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r -d '' file; do
+            php -l "$file"
+          done < <(find . -type f -name '*.php' -not -path './vendor/*' -print0)
+      - name: Verificar arquivos essenciais
+        shell: bash
+        run: |
+          set -euo pipefail
+          for file in config/database.php includes/bootstrap.php public/index.php public/login.php public/admin/produtos.php public/checkout.php public/carrinho.php public/rastrear.php database/migrations/006_login_tentativas.sql; do
+            test -f "$file" || { echo "Arquivo ausente: $file"; exit 1; }
+          done
+      - name: Verificar ausencias de segredos versionados comuns
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f config/local.php ] || [ -f .env ]; then
+            echo 'Segredo de ambiente apareceu no repositorio.'
+            exit 1
+          fi

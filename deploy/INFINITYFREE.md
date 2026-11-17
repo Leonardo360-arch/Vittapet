@@ -20,7 +20,7 @@ A versão gratuita tem `htdocs` como raiz web fixa e restringe o uso de arquivos
 ## Passo a passo
 1. Criar site/conta InfinityFree e habilitar HTTPS/SSL.
 2. No painel MySQL Databases, criar o banco e anotar **hostname, usuário e nome do banco exatamente como fornecidos**. Não assumir `localhost`.
-3. Importar migrations `001_store_base.sql`, `002_pedidos.sql` e `003_financeiro.sql` nessa ordem, via phpMyAdmin do painel.
+3. Importar migrations `001_store_base.sql`, `002_pedidos.sql`, `003_financeiro.sql`, `004_localizacao_loja.sql`, `005_pagamentos_whatsapp.sql` e `006_login_tentativas.sql` nessa ordem, via phpMyAdmin do painel.
 4. Criar `config/local.php` a partir de `config/local.example.php` **somente no servidor/local** e preencher credenciais reais. Nunca realizar commit desse arquivo.
 5. Criar usuário administrador com senha forte e hash (`password_hash`), sem publicar credenciais no Git.
 6. Transferir arquivos permitidos para dentro de `htdocs`, preservando a estrutura. O `.htaccess` oculto da raiz deve ser enviado.
@@ -39,3 +39,6 @@ A versão gratuita tem `htdocs` como raiz web fixa e restringe o uso de arquivos
 
 ## Testes específicos de roteamento
 `/index.php`, `/login.php`, `/carrinho.php`, `/checkout.php`, `/rastrear.php`, `/admin/pedidos.php`, `/assets/css/tokens.css`. Não deixar diretórios sensíveis responderem com listagem ou fontes.
+
+## Proteção de login e rastreio
+A migration 006 cria contadores persistentes para diminuir tentativas automatizadas. Verifique respostas 429 e evite apagar indiscriminadamente os registros ativos. Planeje limpeza de registros com mais de 7 dias via manutenção manual ou rotina oportunística compatível com hospedagem gratuita.

@@ -42,7 +42,7 @@ try {
 }catch(Throwable $ex){error_log($ex->getMessage());$dados=$default;$erro='Configuração indisponível: execute migration 004.';}
 ?><!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Localização — VittaPet Store</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"><link rel="stylesheet" href="../assets/css/tokens.css"></head>
-<body><nav class="container d-flex flex-wrap gap-3 border-bottom py-3"><a href="dashboard.php">Dashboard</a><a href="produtos.php">Produtos</a><a href="pedidos.php">Pedidos</a><a href="../index.php">Ver loja</a></nav>
+<body><nav class="container d-flex flex-wrap gap-3 border-bottom py-3"><a href="dashboard.php">Dashboard</a><a href="produtos.php">Produtos</a><a href="pedidos.php">Pedidos</a><a href="../index.php">Ver loja</a><form action="../logout.php" method="post" class="d-inline"><input type="hidden" name="csrf" value="<?=e(csrf())?>"><button type="submit" class="btn btn-link p-0">Sair</button></form></nav>
 <main class="container py-4" style="max-width:860px"><h1 class="h3 fw-bold">Localização da loja</h1><p class="text-muted">Configure o endereço uma vez e utilize as coordenadas salvas no mapa público. A busca de coordenadas é feita sob demanda, nunca a cada visita.</p>
 <?php if($erro):?><div class="alert alert-danger" role="alert"><?=e($erro)?></div><?php endif;?><?php if($sucesso):?><div class="alert alert-success">Localização salva.</div><?php endif;?>
 <form id="store-location-form" method="post" class="card p-3 p-md-4 row g-3">
