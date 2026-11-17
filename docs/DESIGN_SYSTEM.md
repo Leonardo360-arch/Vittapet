@@ -38,3 +38,7 @@ public/assets/css/
   admin/financeiro.css
 ```
 Componentes devem consumir tokens CSS custom properties. Bootstrap é base de grid/utilitários, não substitui identidade original. Evitar CSS inline arbitrário.
+
+
+## Implementação incremental dev.8
+O design system original é uma especificação-alvo; nem todos os arquivos planejados existem. Nesta etapa foram implementados `public/assets/css/admin.css` e `includes/admin_header.php`, utilizados inicialmente no dashboard. A navegação das demais páginas continua pendente de migração para o componente compartilhado. As barras são HTML/CSS, com valores vindos da consulta por `pago_em`, sem biblioteca gráfica ou números artificiais. Os estados vazios mostram instruções reais, e o menu usa `aria-current`. A responsividade em viewport emulado não substitui inspeção visual em aparelho físico.
