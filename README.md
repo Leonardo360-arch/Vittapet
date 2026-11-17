@@ -8,7 +8,7 @@
 
 | Versão | Escopo | Estado |
 |---|---|---|
-| **v1.0.0 — Store** | Catálogo, CRUD, carrinho reativo, checkout, pedidos/entregas, estoque, financeiro, dashboard, ViaCEP e mapa | **Documentação definida; implementação pendente** |
+| **v1.0.0 — Store** | Catálogo, CRUD, carrinho reativo, checkout, pedidos/entregas, estoque, financeiro, dashboard, ViaCEP e mapa | **Implementação em homologação; CI automatizado aprovado, testes manuais pendentes** |
 | **v2.0.0 — Ecosystem** | Serviços, clínica, tutores/pets, Portal do Tutor, VittaBot, mural, pontos e outras APIs | **Planejada; não implementada** |
 
 > A versão 1.0 é **exclusivamente uma loja de produtos pet**. Não inclui veterinário, banho e tosa, serviços, agendamento, galeria de cães ou mural social.
@@ -25,7 +25,7 @@
 ## Fluxo da loja
 Catálogo → carrinho de atualização automática → checkout → pedido → aguardando pagamento → em separação → embalado → saiu para entrega → entregue. Cancelamentos e estados financeiros são tratados separadamente.
 
-O dashboard apresentará dados do MySQL, com receita efetivamente confirmada, despesas, resultado estimado, pedidos e estoque. O valor final de compras será recalculado pelo servidor, não confiado ao navegador.
+O dashboard apresenta dados do MySQL, com receita efetivamente confirmada, despesas, resultado estimado, pedidos e estoque. O valor final de compras será recalculado pelo servidor, não confiado ao navegador.
 
 ## Documentação oficial
 - [Especificação completa da v1.0](docs/VERSAO_1_0.md)
@@ -40,6 +40,9 @@ O dashboard apresentará dados do MySQL, com receita efetivamente confirmada, de
 - [Padrão de código limpo e SOLID](docs/PADRAO_CODIGO_V1.md)
 - [Revisão de concorrência e organização Git](docs/QA_REVISAO_07.md)
 - [QA 08 — Navegador e integrações JSON](docs/QA_REVISAO_08.md)
+- [Manual operacional v1](docs/MANUAL_OPERACIONAL_V1.md)
+- [Checklist final de entrega](docs/CHECKLIST_ENTREGA_V1.md)
+- [Parecer de liberação](docs/RELATORIO_LIBERACAO_V1.md)
 - [Inventário de arquivos e empacotamento](docs/AUDITORIA_GIT_V1.md)
 - [Plano pós-entrega com datas](docs/PLANO_POS_ENTREGA.md)
 - [Identidade visual, UX e CSS](docs/DESIGN_SYSTEM.md)
@@ -51,14 +54,14 @@ O dashboard apresentará dados do MySQL, com receita efetivamente confirmada, de
 - [QA — Segurança e preparação de homologação](docs/QA_REVISAO_05.md)
 - [Instalação local](docs/INSTALACAO.md)
 
-## Arquitetura planejada
-Monólito modular PHP com PDO/MySQL e camadas de controllers, services e repositories; migrations versionadas, testes, configuração privada fora do webroot e apenas `public/` acessível pelo servidor. A configuração de hospedagem InfinityFree deve ser testada sem expor segredos.
+## Arquitetura atual
+Monólito PHP/PDO/MySQL com controladores PHP, algumas regras extraídas para `includes/` e views integradas. Ainda não há separação completa em camadas MVC. Existem nove migrations, testes automatizados e configuração privada. O pacote de deploy usa uma lista de arquivos permitidos; o InfinityFree ainda não foi implantado.
 
 ## Testes automatizados
-GitHub Actions executa lint PHP e testes HTTP contra MySQL 8 isolado nos PRs para main. Os testes manuais de APIs, celular, concorrência e InfinityFree continuam obrigatórios e são registrados na matriz de QA.
+GitHub Actions executa lint PHP, 78 asserções HTTP/MySQL, concorrência entre dois processos PHP e 15 testes Playwright em navegador Chromium emulado. Os serviços externos foram simulados nos testes de navegador; os testes reais de APIs, dispositivos físicos e InfinityFree permanecem obrigatórios.
 
 ## Controle de progresso
-**Situação em 17/11/2026:** fundação, CRUD, carrinho, checkout inicial, pedidos e rastreio **enviados para a branch `develop`**. **Ainda não foram validados em execução com MySQL e não há publicação concluída.** Consulte a revisão de QA para bloqueadores. A branch `main` será atualizada mediante revisão e aprovação da entrega, sem confundir documentação aprovada com release funcional.
+**Situação em 17/11/2026:** versão `1.0.0-dev.5` integrada à `main`; testes PHP/MySQL, concorrência e Chromium aprovados nas execuções de CI. APIs reais, WhatsApp em dispositivo físico, acessibilidade e implantação no InfinityFree ainda não homologados. Nenhuma tag estável publicada. Consulte `docs/CHECKLIST_ENTREGA_V1.md`.
 
 ## Desenvolvimento e colaboração
 Evitar segredos no Git, escrever commits explicativos, revisar PRs antes de integrar na `main`, e atualizar [CHANGELOG.md](CHANGELOG.md) a cada mudança significativa. Novos recursos devem preservar a compatibilidade com os módulos já implementados.
